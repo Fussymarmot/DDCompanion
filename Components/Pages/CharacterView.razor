@@ -119,12 +119,12 @@ else
         builder.AddAttribute(seq++, "class", "stat-control");
         builder.OpenElement(seq++, "div"); builder.AddAttribute(seq++, "class", "stat-label");
         builder.OpenElement(seq++, "span"); builder.AddContent(seq++, name); builder.CloseElement();
-        builder.OpenElement(seq++, "span"); builder.AddAttribute(seq++, "class", "stat-modifier"); builder.AddContent(seq++, FormatModifier(modifier)); builder.CloseElement();
         builder.CloseElement();
         builder.OpenElement(seq++, "div"); builder.AddAttribute(seq++, "class", "value-control stat-value-control");
         builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, recalculateModifier, value - 1))); builder.AddContent(seq++, "−"); builder.CloseElement();
         builder.OpenElement(seq++, "strong"); builder.AddContent(seq++, value); builder.CloseElement();
         builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, recalculateModifier, value + 1))); builder.AddContent(seq++, "+"); builder.CloseElement();
+        builder.OpenElement(seq++, "span"); builder.AddAttribute(seq++, "class", "stat-modifier"); builder.AddContent(seq++, FormatModifier(modifier)); builder.CloseElement();
         builder.CloseElement(); builder.CloseElement();
     };
 
