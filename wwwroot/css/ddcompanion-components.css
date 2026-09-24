@@ -772,3 +772,13 @@
     font-weight: 700;
 }
 .import-message { margin: 14px 0 0; color: #ef5350; }
+
+
+/* Clearly separated skill and inventory cards */
+.skill-card, .item-card {
+    position: relative;
+    border: 2px solid #3a3a3a;
+    border-radius: 12px;
+    background: #171717;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.02);
+}

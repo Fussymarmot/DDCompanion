@@ -21,6 +21,8 @@
 .stat-button { width:34px; height:34px; border-radius:8px; font-size:20px; }
 .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
 .stat-control { display:flex; flex-direction:column; gap:8px; color:#bdbdbd; font-size:13px; font-weight:600; }
+.stat-label { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.stat-modifier { color:#c62828; font-size:15px; font-weight:800; }
 .stat-control strong { min-width:28px; text-align:center; color:#fff; }
 .section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
 .section-heading h2 { margin:0; }
@@ -56,4 +58,49 @@
 
 @keyframes navigation-spin {
     to { transform: rotate(360deg); }
+}
+
+/* Skill and inventory cards */
+.skill-card, .item-card {
+    position: relative;
+    margin-top: 12px;
+    padding: 16px;
+    padding-top: 20px;
+    border: 2px solid #3a3a3a;
+    border-radius: 12px;
+    background: #171717;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.02);
+    box-sizing: border-box;
+}
+.skill-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+.item-card-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 90px minmax(0, 1.5fr);
+    gap: 10px;
+}
+.card-remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #3a3a3a;
+    border-radius: 7px;
+    background: #202020;
+    color: #ef5350;
+    font-size: 21px;
+    line-height: 1;
+}
+@media(max-width:650px) {
+    .item-card-fields { grid-template-columns: minmax(0, 1fr) 80px; }
+    .item-card-fields .input:last-child { grid-column: 1 / -1; }
 }

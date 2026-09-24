@@ -51,12 +51,12 @@ else
         <section class="view-section">
             <h2>Характеристики</h2>
             <div class="stats-grid">
-                @Stat("Сила", Character.Stats.Strength, v => Character.Stats.Strength = v)
-                @Stat("Ловкость", Character.Stats.Dexterity, v => Character.Stats.Dexterity = v)
-                @Stat("Телосложение", Character.Stats.Constitution, v => Character.Stats.Constitution = v)
-                @Stat("Интеллект", Character.Stats.Intelligence, v => Character.Stats.Intelligence = v)
-                @Stat("Мудрость", Character.Stats.Wisdom, v => Character.Stats.Wisdom = v)
-                @Stat("Харизма", Character.Stats.Charisma, v => Character.Stats.Charisma = v)
+                @Stat("Сила", Character.Stats.Strength, Character.Stats.StrengthModifier, v => Character.Stats.Strength = v, () => Character.Stats.StrengthModifier = CalculateModifier(Character.Stats.Strength))
+                @Stat("Ловкость", Character.Stats.Dexterity, Character.Stats.DexterityModifier, v => Character.Stats.Dexterity = v, () => Character.Stats.DexterityModifier = CalculateModifier(Character.Stats.Dexterity))
+                @Stat("Телосложение", Character.Stats.Constitution, Character.Stats.ConstitutionModifier, v => Character.Stats.Constitution = v, () => Character.Stats.ConstitutionModifier = CalculateModifier(Character.Stats.Constitution))
+                @Stat("Интеллект", Character.Stats.Intelligence, Character.Stats.IntelligenceModifier, v => Character.Stats.Intelligence = v, () => Character.Stats.IntelligenceModifier = CalculateModifier(Character.Stats.Intelligence))
+                @Stat("Мудрость", Character.Stats.Wisdom, Character.Stats.WisdomModifier, v => Character.Stats.Wisdom = v, () => Character.Stats.WisdomModifier = CalculateModifier(Character.Stats.Wisdom))
+                @Stat("Харизма", Character.Stats.Charisma, Character.Stats.CharismaModifier, v => Character.Stats.Charisma = v, () => Character.Stats.CharismaModifier = CalculateModifier(Character.Stats.Charisma))
             </div>
         </section>
 
@@ -64,10 +64,10 @@ else
             <div class="section-heading"><h2>Навыки</h2><button class="small-button" type="button" @onclick="AddSkill">＋ Добавить</button></div>
             @foreach (var skill in Character.Skills)
             {
-                <div class="list-row">
+                <div class="skill-card">
+                    <button class="remove-button card-remove" type="button" aria-label="Удалить навык" @onclick="() => RemoveSkill(skill)">×</button>
                     <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
                     <InputText @bind-Value="skill.Description" class="input" placeholder="Описание" />
-                    <button class="remove-button" type="button" @onclick="() => RemoveSkill(skill)">×</button>
                 </div>
             }
         </section>
@@ -76,11 +76,13 @@ else
             <div class="section-heading"><h2>Инвентарь</h2><button class="small-button" type="button" @onclick="AddItem">＋ Добавить</button></div>
             @foreach (var item in Character.Inventory)
             {
-                <div class="item-row">
-                    <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
-                    <InputNumber @bind-Value="item.Quantity" class="input quantity-input" />
-                    <InputText @bind-Value="item.Description" class="input" placeholder="Описание" />
-                    <button class="remove-button" type="button" @onclick="() => RemoveItem(item)">×</button>
+                <div class="item-card">
+                    <button class="remove-button card-remove" type="button" aria-label="Удалить предмет" @onclick="() => RemoveItem(item)">×</button>
+                    <div class="item-card-fields">
+                        <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
+                        <InputNumber @bind-Value="item.Quantity" class="input quantity-input" />
+                        <InputText @bind-Value="item.Description" class="input" placeholder="Описание" />
+                    </div>
                 </div>
             }
         </section>
@@ -110,20 +112,33 @@ else
         }
     }
 
-    private RenderFragment Stat(string name, int value, Action<int> set) => builder =>
+    private RenderFragment Stat(string name, int value, int modifier, Action<int> set, Action recalculateModifier) => builder =>
     {
         var seq = 0;
         builder.OpenElement(seq++, "div");
         builder.AddAttribute(seq++, "class", "stat-control");
+        builder.OpenElement(seq++, "div"); builder.AddAttribute(seq++, "class", "stat-label");
         builder.OpenElement(seq++, "span"); builder.AddContent(seq++, name); builder.CloseElement();
+        builder.OpenElement(seq++, "span"); builder.AddAttribute(seq++, "class", "stat-modifier"); builder.AddContent(seq++, FormatModifier(modifier)); builder.CloseElement();
+        builder.CloseElement();
         builder.OpenElement(seq++, "div"); builder.AddAttribute(seq++, "class", "value-control stat-value-control");
-        builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, value - 1))); builder.AddContent(seq++, "−"); builder.CloseElement();
+        builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, recalculateModifier, value - 1))); builder.AddContent(seq++, "−"); builder.CloseElement();
         builder.OpenElement(seq++, "strong"); builder.AddContent(seq++, value); builder.CloseElement();
-        builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, value + 1))); builder.AddContent(seq++, "+"); builder.CloseElement();
+        builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, recalculateModifier, value + 1))); builder.AddContent(seq++, "+"); builder.CloseElement();
         builder.CloseElement(); builder.CloseElement();
     };
 
-    private async Task ChangeStat(Action<int> set, int value) { set(Math.Max(0, value)); await Save(); }
+    private static string FormatModifier(int modifier) => modifier > 0 ? "+" + modifier : modifier == 0 ? "+0" : modifier.ToString();
+
+    private static int CalculateModifier(int value) => (value - 10) / 2;
+
+    private async Task ChangeStat(Action<int> set, Action recalculateModifier, int newValue)
+    {
+        set(newValue);
+        recalculateModifier();
+        await Save();
+    }
+
     private async Task ChangeHealth(int delta)
     {
         if (Character is null) return;

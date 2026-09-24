@@ -46,6 +46,14 @@ public sealed class CharacterStorageService
         if (data is null || !string.Equals(data.Format, "DDC", StringComparison.OrdinalIgnoreCase))
             return null;
 
+        // Старые DDC-файлы не содержали сохранённых модификаторов.
+        // Мигрируем их один раз; новые файлы больше ничего при загрузке не пересчитывают.
+        if (data.Version < 2)
+        {
+            data.Character.Stats.RecalculateModifiers();
+            await SaveToPathAsync(data.Character, path);
+        }
+
         return data.Character;
     }
 

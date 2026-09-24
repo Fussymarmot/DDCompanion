@@ -41,12 +41,12 @@
         <section class="form-section">
             <h2>Характеристики</h2>
             <div class="stats-grid">
-                <label class="stat"><span>Сила</span><InputNumber @bind-Value="Character.Stats.Strength" class="input" /></label>
-                <label class="stat"><span>Ловкость</span><InputNumber @bind-Value="Character.Stats.Dexterity" class="input" /></label>
-                <label class="stat"><span>Телосложение</span><InputNumber @bind-Value="Character.Stats.Constitution" class="input" /></label>
-                <label class="stat"><span>Интеллект</span><InputNumber @bind-Value="Character.Stats.Intelligence" class="input" /></label>
-                <label class="stat"><span>Мудрость</span><InputNumber @bind-Value="Character.Stats.Wisdom" class="input" /></label>
-                <label class="stat"><span>Харизма</span><InputNumber @bind-Value="Character.Stats.Charisma" class="input" /></label>
+                <label class="stat"><span>Сила</span><InputNumber @bind-Value="Character.Stats.Strength" @bind-Value:after="RecalculateModifiers" class="input" /></label>
+                <label class="stat"><span>Ловкость</span><InputNumber @bind-Value="Character.Stats.Dexterity" @bind-Value:after="RecalculateModifiers" class="input" /></label>
+                <label class="stat"><span>Телосложение</span><InputNumber @bind-Value="Character.Stats.Constitution" @bind-Value:after="RecalculateModifiers" class="input" /></label>
+                <label class="stat"><span>Интеллект</span><InputNumber @bind-Value="Character.Stats.Intelligence" @bind-Value:after="RecalculateModifiers" class="input" /></label>
+                <label class="stat"><span>Мудрость</span><InputNumber @bind-Value="Character.Stats.Wisdom" @bind-Value:after="RecalculateModifiers" class="input" /></label>
+                <label class="stat"><span>Харизма</span><InputNumber @bind-Value="Character.Stats.Charisma" @bind-Value:after="RecalculateModifiers" class="input" /></label>
             </div>
         </section>
 
@@ -67,10 +67,10 @@
             <div class="section-heading"><div><h2>Навыки</h2><p>Можно оставить пустыми и добавить позже.</p></div><button type="button" class="small-button" @onclick="AddSkill">Добавить</button></div>
             @foreach (var skill in Character.Skills)
             {
-                <div class="list-row">
+                <div class="skill-card">
+                    <button type="button" class="remove-button card-remove" aria-label="Удалить навык" @onclick="() => RemoveSkill(skill)">×</button>
                     <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
                     <InputText @bind-Value="skill.Description" class="input" placeholder="Описание" />
-                    <button type="button" class="remove-button" @onclick="() => RemoveSkill(skill)">×</button>
                 </div>
             }
         </section>
@@ -79,11 +79,13 @@
             <div class="section-heading"><div><h2>Инвентарь</h2><p>Предметы, с которыми персонаж начинает игру.</p></div><button type="button" class="small-button" @onclick="AddItem">Добавить</button></div>
             @foreach (var item in Character.Inventory)
             {
-                <div class="item-row">
-                    <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
-                    <InputNumber @bind-Value="item.Quantity" class="input quantity-input" />
-                    <InputText @bind-Value="item.Description" class="input" placeholder="Описание" />
-                    <button type="button" class="remove-button" @onclick="() => RemoveItem(item)">×</button>
+                <div class="item-card">
+                    <button type="button" class="remove-button card-remove" aria-label="Удалить предмет" @onclick="() => RemoveItem(item)">×</button>
+                    <div class="item-card-fields">
+                        <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
+                        <InputNumber @bind-Value="item.Quantity" class="input quantity-input" />
+                        <InputText @bind-Value="item.Description" class="input" placeholder="Описание" />
+                    </div>
                 </div>
             }
         </section>
@@ -93,6 +95,8 @@
 @code {
     private Character Character { get; } = new();
     private string? AvatarError;
+
+    protected override void OnInitialized() => Character.Stats.RecalculateModifiers();
 
     private async Task PickAvatar()
     {
@@ -114,6 +118,8 @@
         }
         catch (Exception ex) { AvatarError = $"Не удалось выбрать изображение: {ex.Message}"; }
     }
+
+    private void RecalculateModifiers() => Character.Stats.RecalculateModifiers();
 
     private void AddSkill() => Character.Skills.Add(new CharacterSkill());
     private void RemoveSkill(CharacterSkill skill) => Character.Skills.Remove(skill);
