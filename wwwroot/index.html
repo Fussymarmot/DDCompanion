@@ -21,7 +21,10 @@
     <div id="app"></div>
 
     <div id="loading-screen" class="loading-screen">
-        <div class="loading-logo">D&amp;D</div>
+        <div class="loading-content">
+            <div class="loading-logo">D&amp;D</div>
+            <div class="loading-spinner" aria-label="Загрузка"></div>
+        </div>
     </div>
     
     <div id="blazor-error-ui" data-nosnippet>
@@ -33,41 +36,18 @@
     <script src="_framework/blazor.webview.js" autostart="false"></script> <script src="app.js"></script>
 </body>
 
-    <script> 
-        (() => { 
+    <script>
+        (() => {
             const loadingScreen = document.getElementById("loading-screen");
-            const loadingLogo = document.querySelector(".loading-logo"); 
-            
-            let animationFinished = false; 
-            let blazorReady = false; 
-            let hidden = false; 
-            
-            function tryHideLoadingScreen() { 
-                if (hidden || !animationFinished || !blazorReady) {
-                    return; 
-                } 
-                
-                hidden = true; 
-                
-                loadingScreen.classList.add("hide"); 
-                
-                loadingScreen.addEventListener("transitionend", () => { 
-                    loadingScreen.remove(); 
-                    }, { once: true }); 
-            } 
-            
-            // Кровь полностью заполнила D&D 
-            loadingLogo.addEventListener("animationend", () => { 
-                animationFinished = true; 
-                tryHideLoadingScreen(); 
-                }, { once: true }); 
-            
-            // Вызывается из Blazor, когда приложение готово 
-            window.blazorReady = function () { 
-                blazorReady = true; 
-                tryHideLoadingScreen(); 
-            }; 
-        })(); </script>
 
+            window.blazorReady = function () {
+                loadingScreen?.classList.add("hide");
+
+                loadingScreen?.addEventListener("transitionend", () => {
+                    loadingScreen.remove();
+                }, { once: true });
+            };
+        })();
+    </script>
 
 </html>

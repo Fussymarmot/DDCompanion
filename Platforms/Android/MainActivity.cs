@@ -18,13 +18,28 @@ namespace DDCompanion;
                            | ConfigChanges.ScreenLayout
                            | ConfigChanges.SmallestScreenSize
                            | ConfigChanges.Density,
-    LaunchMode = LaunchMode.SingleTop)]
+    LaunchMode = LaunchMode.SingleTask)]
+[IntentFilter(
+    new[] { Intent.ActionView },
+    Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
+    DataSchemes = new[] { "content" },
+    DataMimeTypes = new[] { "application/octet-stream", "*/*" })]
+[IntentFilter(
+    new[] { Intent.ActionView },
+    Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
+    DataSchemes = new[] { "file" },
+    DataMimeTypes = new[] { "application/octet-stream", "*/*" })]
+[IntentFilter(
+    new[] { Intent.ActionSend },
+    Categories = new[] { Intent.CategoryDefault },
+    DataMimeTypes = new[] { "application/octet-stream", "*/*" })]
 public class MainActivity : MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
-        HandleOpenIntent(Intent);
+
+        HandleIncomingIntent(Intent);
 
         WindowCompat.SetDecorFitsSystemWindows(Window, false);
         ViewCompat.SetOnApplyWindowInsetsListener(Window.DecorView, new InsetsListener());
@@ -36,25 +51,35 @@ public class MainActivity : MauiAppCompatActivity
         base.OnNewIntent(intent);
 
         if (intent is not null)
-            HandleOpenIntent(intent);
+            HandleIncomingIntent(intent);
     }
 
-    private static void HandleOpenIntent(Intent? intent)
+    private static void HandleIncomingIntent(Intent? intent)
     {
-        var uri = intent?.Data;
-        if (uri is null || !string.Equals(intent?.Action, Intent.ActionView, StringComparison.Ordinal))
+        if (intent is null)
             return;
 
-        // File managers normally grant a temporary read permission to the Activity.
-        // Copy the file while that grant is definitely alive instead of passing the
-        // content:// URI through Preferences and trying to open it later.
+        var uri = intent.Data;
+
+        if (uri is null && intent.ClipData is not null && intent.ClipData.ItemCount > 0)
+            uri = intent.ClipData.GetItemAt(0)?.Uri;
+
+        if (uri is null && intent.Action == Intent.ActionSend)
+            uri = intent.GetParcelableExtra(Intent.ExtraStream) as Android.Net.Uri;
+
+        if (uri is not null)
+            SaveIncomingUri(uri);
+    }
+
+    private static void SaveIncomingUri(Android.Net.Uri uri)
+    {
         try
         {
             var pendingPath = Path.Combine(
                 FileSystem.CacheDirectory,
                 $"pending-{Guid.NewGuid():N}.ddc");
 
-            if (uri.Scheme?.Equals("file", StringComparison.OrdinalIgnoreCase) == true
+            if (string.Equals(uri.Scheme, "file", StringComparison.OrdinalIgnoreCase)
                 && !string.IsNullOrWhiteSpace(uri.Path))
             {
                 using var input = File.OpenRead(uri.Path);
@@ -65,8 +90,9 @@ public class MainActivity : MauiAppCompatActivity
             {
                 var resolver = Android.App.Application.Context.ContentResolver;
                 using var input = resolver.OpenInputStream(uri);
+
                 if (input is null)
-                    throw new IOException("Не удалось открыть выбранный файл.");
+                    throw new IOException("Не удалось открыть файл через ContentResolver.");
 
                 using var output = File.Create(pendingPath);
                 input.CopyTo(output);
@@ -74,12 +100,15 @@ public class MainActivity : MauiAppCompatActivity
 
             Preferences.Default.Set("pending_ddc_path", pendingPath);
             Preferences.Default.Remove("pending_ddc_uri");
+
         }
         catch
         {
-            // Keep the URI as a fallback. CharacterStorageService will retry it
-            // after the Blazor page has started, without allowing the app to crash.
-            Preferences.Default.Set("pending_ddc_uri", uri.ToString());
+            // Content URI может быть доступен только через выданное Android разрешение.
+            // Сохраняем URI и пробуем открыть его уже из приложения.
+            var uriString = uri.ToString();
+            Preferences.Default.Set("pending_ddc_uri", uriString);
+            Preferences.Default.Remove("pending_ddc_path");
         }
     }
 

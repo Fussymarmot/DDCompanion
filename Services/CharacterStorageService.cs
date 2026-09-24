@@ -8,6 +8,7 @@ namespace DDCompanion.Services;
 public sealed class CharacterStorageService
 {
     private const string CharactersFolderName = "Characters";
+    private static readonly SemaphoreSlim PendingImportLock = new(1, 1);
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -63,6 +64,7 @@ public sealed class CharacterStorageService
             path = Path.Combine(CharactersDirectory, $"{baseName}_{suffix++}.ddc");
 
         await SaveToPathAsync(character, path);
+
         return path;
     }
 
@@ -90,57 +92,66 @@ public sealed class CharacterStorageService
     public async Task<bool> ImportPendingAndroidFileAsync()
     {
 #if ANDROID
-        var pendingPath = Preferences.Default.Get("pending_ddc_path", string.Empty);
-        if (!string.IsNullOrWhiteSpace(pendingPath))
+        await PendingImportLock.WaitAsync();
+        try
         {
+            var pendingPath = Preferences.Default.Get("pending_ddc_path", string.Empty);
+            if (!string.IsNullOrWhiteSpace(pendingPath))
+            {
+                try
+                {
+                    if (!File.Exists(pendingPath))
+                        return false;
+
+                    await using var fileStream = File.OpenRead(pendingPath);
+                    var character = await ImportAsync(fileStream);
+                    if (character is null)
+                        return false;
+
+                    Preferences.Default.Remove("pending_ddc_path");
+                    Preferences.Default.Remove("pending_ddc_uri");
+                    TryDeleteFile(pendingPath);
+                    return true;
+                }
+                catch
+                {
+                    Preferences.Default.Remove("pending_ddc_path");
+                    TryDeleteFile(pendingPath);
+                    return false;
+                }
+            }
+
+            var uriString = Preferences.Default.Get("pending_ddc_uri", string.Empty);
+            if (string.IsNullOrWhiteSpace(uriString))
+                return false;
+
             try
             {
-                if (!File.Exists(pendingPath))
+                var uri = Android.Net.Uri.Parse(uriString);
+                if (uri is null)
                     return false;
 
-                await using var fileStream = File.OpenRead(pendingPath);
-                var character = await ImportAsync(fileStream);
+                var resolver = Android.App.Application.Context.ContentResolver;
+                await using var stream = resolver.OpenInputStream(uri);
+                if (stream is null)
+                    return false;
+
+                var character = await ImportAsync(stream);
                 if (character is null)
                     return false;
 
-                Preferences.Default.Remove("pending_ddc_path");
-                TryDeleteFile(pendingPath);
+                Preferences.Default.Remove("pending_ddc_uri");
                 return true;
             }
             catch
             {
-                TryDeleteFile(pendingPath);
-                Preferences.Default.Remove("pending_ddc_path");
+                Preferences.Default.Remove("pending_ddc_uri");
                 return false;
             }
         }
-
-        var uriString = Preferences.Default.Get("pending_ddc_uri", string.Empty);
-        if (string.IsNullOrWhiteSpace(uriString))
-            return false;
-
-        try
+        finally
         {
-            var uri = Android.Net.Uri.Parse(uriString);
-            if (uri is null)
-                return false;
-
-            var resolver = Android.App.Application.Context.ContentResolver;
-            await using var stream = resolver.OpenInputStream(uri);
-            if (stream is null)
-                return false;
-
-            var character = await ImportAsync(stream);
-            if (character is null)
-                return false;
-
-            Preferences.Default.Remove("pending_ddc_uri");
-            return true;
-        }
-        catch
-        {
-            // Invalid/expired URI grants must not crash the application.
-            return false;
+            PendingImportLock.Release();
         }
 #else
         return false;
@@ -173,6 +184,7 @@ public sealed class CharacterStorageService
         var path = GetCharacterPath(fileName);
         if (!File.Exists(path)) return false;
         await Task.Run(() => File.Delete(path));
+
         return true;
     }
 

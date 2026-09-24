@@ -3,9 +3,15 @@
 @using DDCompanion.Services
 @inject CharacterStorageService CharacterStorage
 
-<PageTitle>@(Character?.Name ?? "Персонаж")</PageTitle>
+<PageTitle>@(IsLoading ? "Загрузка персонажа" : (Character?.Name ?? "Персонаж"))</PageTitle>
 
-@if (Character is null)
+@if (IsLoading)
+{
+    <div class="loading-screen">
+        <div class="loading-logo">D&D</div>
+    </div>
+}
+else if (Character is null)
 {
     <div class="character-view empty-character"><h1>Персонаж не найден</h1></div>
 }
@@ -86,11 +92,23 @@ else
     [Parameter] public string FileName { get; set; } = string.Empty;
     private Character? Character;
     private string? CharacterPath;
+    private bool IsLoading = true;
 
     protected override async Task OnParametersSetAsync()
     {
+        IsLoading = true;
+        Character = null;
+
         CharacterPath = CharacterStorage.GetCharacterPath(Uri.UnescapeDataString(FileName));
-        Character = await CharacterStorage.LoadAsync(CharacterPath);
+
+        try
+        {
+            Character = await CharacterStorage.LoadAsync(CharacterPath);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     private RenderFragment Stat(string name, int value, Action<int> set) => builder =>

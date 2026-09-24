@@ -57,15 +57,31 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Сначала сразу показываем уже загруженный кэш.
+        // Обработка входящего .ddc не должна блокировать открытие главной страницы.
+        Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+
+#if ANDROID
+        _ = ImportPendingAndRefreshAsync();
+#endif
+    }
+
+#if ANDROID
+    private async Task ImportPendingAndRefreshAsync()
+    {
         try
         {
-            await CharacterStorage.ImportPendingAndroidFileAsync();
-            Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+            var imported = await CharacterStorage.ImportPendingAndroidFileAsync();
+            if (imported)
+            {
+                Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+                await InvokeAsync(StateHasChanged);
+            }
         }
         catch
         {
-            // A malformed external file must never prevent the home page from opening.
-            Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+            // Ошибка входящего файла не должна влиять на навигацию.
         }
     }
+#endif
 }
