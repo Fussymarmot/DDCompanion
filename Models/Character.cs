@@ -16,6 +16,5 @@ public class Character
     public CharacterCombat Combat { get; set; } = new();
 
     public List<CharacterSkill> Skills { get; set; } = [];
-    public List<CharacterAbility> Abilities { get; set; } = [];
     public List<CharacterItem> Inventory { get; set; } = [];
 }

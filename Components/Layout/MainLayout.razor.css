@@ -1,4 +1,4 @@
-﻿.app {
+.app {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -6,36 +6,8 @@
 }
 
 .content {
+    position: relative;
     flex: 1;
     width: 100%;
     box-sizing: border-box;
-}
-
-.content {
-    position: relative;
-}
-
-.navigation-loading {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(16, 16, 16, .72);
-    z-index: 100;
-}
-
-.navigation-spinner {
-    width: 42px;
-    height: 42px;
-    border: 4px solid rgba(208, 0, 0, .25);
-    border-top-color: #d00000;
-    border-radius: 50%;
-    animation: navigation-spin .8s linear infinite;
-}
-
-@keyframes navigation-spin {
-    to {
-        transform: rotate(360deg);
-    }
 }

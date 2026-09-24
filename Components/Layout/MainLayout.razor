@@ -7,58 +7,15 @@
     <NavMenu />
 
     <main class="content">
-        @if (isNavigating)
-        {
-            <div class="navigation-loading" aria-label="Загрузка">
-                <div class="navigation-spinner"></div>
-            </div>
-        }
-
         @Body
     </main>
 </div>
 
-@implements IDisposable
 
 @code {
-    private bool isNavigating;
-    private IDisposable? locationChangingRegistration;
-
-    protected override void OnInitialized()
-    {
-        locationChangingRegistration = Navigation.RegisterLocationChangingHandler(OnLocationChanging);
-        Navigation.LocationChanged += OnLocationChanged;
-    }
-
-    private async ValueTask OnLocationChanging(LocationChangingContext context)
-    {
-        await InvokeAsync(() =>
-        {
-            isNavigating = true;
-            StateHasChanged();
-        });
-    }
-
-    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        await InvokeAsync(() =>
-        {
-            isNavigating = false;
-            StateHasChanged();
-        });
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
             await JS.InvokeVoidAsync("blazorReady");
-        }
-    }
-
-    public void Dispose()
-    {
-        locationChangingRegistration?.Dispose();
-        Navigation.LocationChanged -= OnLocationChanged;
     }
 }

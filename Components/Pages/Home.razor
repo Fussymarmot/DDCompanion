@@ -6,6 +6,14 @@
 
 <PageTitle>D&D Companion</PageTitle>
 
+@if (IsLoading)
+{
+    <div class="page-loading" aria-label="Загрузка">
+        <div class="navigation-spinner"></div>
+    </div>
+}
+else
+{
 <div class="home">
     <div class="home-heading">
         <div>
@@ -45,9 +53,11 @@
         </div>
     }
 </div>
+}
 
 @code {
     private List<Character> Characters = [];
+    private bool IsLoading = true;
     
     private void OpenCharacter(Character character)
     {
@@ -57,13 +67,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Сначала сразу показываем уже загруженный кэш.
-        // Обработка входящего .ddc не должна блокировать открытие главной страницы.
-        Characters = (await CharacterStorage.LoadAllAsync()).ToList();
-
+        try
+        {
+            Characters = (await CharacterStorage.LoadAllAsync()).ToList();
 #if ANDROID
-        _ = ImportPendingAndRefreshAsync();
+            await ImportPendingAndRefreshAsync();
 #endif
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
 #if ANDROID

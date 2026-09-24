@@ -7,8 +7,8 @@
 
 @if (IsLoading)
 {
-    <div class="loading-screen">
-        <div class="loading-logo">D&D</div>
+    <div class="character-loading" aria-label="Загрузка">
+        <div class="navigation-spinner"></div>
     </div>
 }
 else if (Character is null)
@@ -66,8 +66,7 @@ else
             {
                 <div class="list-row">
                     <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
-                    <InputNumber @bind-Value="skill.Bonus" class="input bonus-input" />
-                    <label class="check"><InputCheckbox @bind-Value="skill.Proficient" /> Владение</label>
+                    <InputText @bind-Value="skill.Description" class="input" placeholder="Описание" />
                     <button class="remove-button" type="button" @onclick="() => RemoveSkill(skill)">×</button>
                 </div>
             }

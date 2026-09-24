@@ -69,8 +69,7 @@
             {
                 <div class="list-row">
                     <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
-                    <InputNumber @bind-Value="skill.Bonus" class="input bonus-input" />
-                    <label class="check"><InputCheckbox @bind-Value="skill.Proficient" /> Владение</label>
+                    <InputText @bind-Value="skill.Description" class="input" placeholder="Описание" />
                     <button type="button" class="remove-button" @onclick="() => RemoveSkill(skill)">×</button>
                 </div>
             }

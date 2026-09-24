@@ -5,7 +5,7 @@
 @implements IDisposable
 
 <header class="nav-header">
-    @if (IsSettingsPage || IsCharacterPage || IsCharacterEditPage)
+    @if (IsSettingsPage || IsImportPage || IsCharacterPage || IsCharacterEditPage)
     {
         <button class="header-button back-button" type="button" aria-label="Назад" @onclick="GoBack">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
@@ -86,8 +86,9 @@
 
     private bool IsHomePage => Navigation.Uri.EndsWith("/", StringComparison.OrdinalIgnoreCase);
     private bool IsSettingsPage => Navigation.Uri.Contains("/settings", StringComparison.OrdinalIgnoreCase);
+    private bool IsImportPage => Navigation.Uri.Contains("/characters/import", StringComparison.OrdinalIgnoreCase);
     private bool IsCharacterEditPage => Navigation.Uri.Contains("/characters/create", StringComparison.OrdinalIgnoreCase) || Navigation.Uri.Contains("/characters/edit", StringComparison.OrdinalIgnoreCase);
-    private bool IsCharacterPage => Navigation.Uri.Contains("/characters/", StringComparison.OrdinalIgnoreCase) && !IsCharacterEditPage;
+    private bool IsCharacterPage => Navigation.Uri.Contains("/characters/", StringComparison.OrdinalIgnoreCase) && !IsCharacterEditPage && !IsImportPage;
 
     private string CurrentCharacterFileName
     {
