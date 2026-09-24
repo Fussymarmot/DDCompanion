@@ -1,0 +1,124 @@
+@page "/characters/{FileName}"
+@using DDCompanion.Models
+@using DDCompanion.Services
+@inject CharacterStorageService CharacterStorage
+
+<PageTitle>@(Character?.Name ?? "Персонаж")</PageTitle>
+
+@if (Character is null)
+{
+    <div class="character-view empty-character"><h1>Персонаж не найден</h1></div>
+}
+else
+{
+    <div class="character-view">
+        <section class="character-profile">
+            @if (!string.IsNullOrWhiteSpace(Character.ImageBase64))
+            {
+                <img class="profile-avatar" src="@Character.ImageBase64" alt="@Character.Name" />
+            }
+            else
+            {
+                <div class="profile-avatar avatar-placeholder">?</div>
+            }
+            <div><h1>@Character.Name</h1><p>@Character.Species · @Character.Class</p></div>
+        </section>
+
+        <section class="view-section">
+            <h2>Здоровье</h2>
+            <div class="value-control">
+                <button class="value-button danger" type="button" @onclick="() => ChangeHealth(-1)">−</button>
+                <strong>@Character.Combat.CurrentHealth / @Character.Combat.MaxHealth</strong>
+                <button class="value-button" type="button" @onclick="() => ChangeHealth(1)">+</button>
+            </div>
+        </section>
+
+        <section class="view-section">
+            <h2>Защита</h2>
+            <div class="value-control">
+                <button class="value-button danger" type="button" @onclick="() => ChangeProtection(-1)">−</button>
+                <strong>@Character.Combat.Protection</strong>
+                <button class="value-button" type="button" @onclick="() => ChangeProtection(1)">+</button>
+            </div>
+        </section>
+
+        <section class="view-section">
+            <h2>Характеристики</h2>
+            <div class="stats-grid">
+                @Stat("Сила", Character.Stats.Strength, v => Character.Stats.Strength = v)
+                @Stat("Ловкость", Character.Stats.Dexterity, v => Character.Stats.Dexterity = v)
+                @Stat("Телосложение", Character.Stats.Constitution, v => Character.Stats.Constitution = v)
+                @Stat("Интеллект", Character.Stats.Intelligence, v => Character.Stats.Intelligence = v)
+                @Stat("Мудрость", Character.Stats.Wisdom, v => Character.Stats.Wisdom = v)
+                @Stat("Харизма", Character.Stats.Charisma, v => Character.Stats.Charisma = v)
+            </div>
+        </section>
+
+        <section class="view-section">
+            <div class="section-heading"><h2>Навыки</h2><button class="small-button" type="button" @onclick="AddSkill">＋ Добавить</button></div>
+            @foreach (var skill in Character.Skills)
+            {
+                <div class="list-row">
+                    <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
+                    <InputNumber @bind-Value="skill.Bonus" class="input bonus-input" />
+                    <label class="check"><InputCheckbox @bind-Value="skill.Proficient" /> Владение</label>
+                    <button class="remove-button" type="button" @onclick="() => RemoveSkill(skill)">×</button>
+                </div>
+            }
+        </section>
+
+        <section class="view-section">
+            <div class="section-heading"><h2>Инвентарь</h2><button class="small-button" type="button" @onclick="AddItem">＋ Добавить</button></div>
+            @foreach (var item in Character.Inventory)
+            {
+                <div class="item-row">
+                    <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
+                    <InputNumber @bind-Value="item.Quantity" class="input quantity-input" />
+                    <InputText @bind-Value="item.Description" class="input" placeholder="Описание" />
+                    <button class="remove-button" type="button" @onclick="() => RemoveItem(item)">×</button>
+                </div>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    [Parameter] public string FileName { get; set; } = string.Empty;
+    private Character? Character;
+    private string? CharacterPath;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        CharacterPath = CharacterStorage.GetCharacterPath(Uri.UnescapeDataString(FileName));
+        Character = await CharacterStorage.LoadAsync(CharacterPath);
+    }
+
+    private RenderFragment Stat(string name, int value, Action<int> set) => builder =>
+    {
+        var seq = 0;
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "stat-control");
+        builder.OpenElement(seq++, "span"); builder.AddContent(seq++, name); builder.CloseElement();
+        builder.OpenElement(seq++, "div"); builder.AddAttribute(seq++, "class", "value-control stat-value-control");
+        builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, value - 1))); builder.AddContent(seq++, "−"); builder.CloseElement();
+        builder.OpenElement(seq++, "strong"); builder.AddContent(seq++, value); builder.CloseElement();
+        builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, value + 1))); builder.AddContent(seq++, "+"); builder.CloseElement();
+        builder.CloseElement(); builder.CloseElement();
+    };
+
+    private async Task ChangeStat(Action<int> set, int value) { set(Math.Max(0, value)); await Save(); }
+    private async Task ChangeHealth(int delta)
+    {
+        if (Character is null) return;
+        if (delta > 0 && Character.Combat.CurrentHealth >= Character.Combat.MaxHealth)
+        { Character.Combat.MaxHealth++; Character.Combat.CurrentHealth++; }
+        else Character.Combat.CurrentHealth = Math.Clamp(Character.Combat.CurrentHealth + delta, 0, Math.Max(0, Character.Combat.MaxHealth));
+        await Save();
+    }
+    private async Task ChangeProtection(int delta) { if (Character is null) return; Character.Combat.Protection = Math.Max(0, Character.Combat.Protection + delta); await Save(); }
+    private void AddSkill() => Character!.Skills.Add(new CharacterSkill());
+    private void RemoveSkill(CharacterSkill skill) => Character!.Skills.Remove(skill);
+    private void AddItem() => Character!.Inventory.Add(new CharacterItem());
+    private void RemoveItem(CharacterItem item) => Character!.Inventory.Remove(item);
+    private async Task Save() { if (Character is not null && CharacterPath is not null) await CharacterStorage.SaveToPathAsync(Character, CharacterPath); }
+}

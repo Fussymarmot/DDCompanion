@@ -1,0 +1,11 @@
+@font-face {
+    font-family: "Prophecy";
+    src: url("../fonts/prophecy.ttf") format("truetype");
+    font-weight: 400;
+}
+@font-face {
+    font-family: "Determination";
+    src: url("../fonts/Determination.ttf") format("truetype");
+    font-weight: 700;
+}
+

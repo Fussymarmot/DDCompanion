@@ -1,0 +1,62 @@
+@page "/characters/import"
+@using DDCompanion.Services
+@inject CharacterStorageService CharacterStorage
+@inject NavigationManager Navigation
+
+<PageTitle>Импорт персонажа</PageTitle>
+
+<div class="import-page">
+    <div class="import-card">
+        <h1>Импорт персонажа</h1>
+        <p>Выберите файл <b>.ddc</b>. Он будет скопирован в папку персонажей приложения.</p>
+
+        <button class="import-button" @onclick="Import">Выбрать .ddc</button>
+
+        @if (!string.IsNullOrWhiteSpace(Message))
+        {
+            <p class="import-message">@Message</p>
+        }
+    </div>
+</div>
+
+@code {
+    private string? Message;
+
+    private async Task Import()
+    {
+        Message = null;
+
+        try
+        {
+            var file = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Выберите персонажа",
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    [DevicePlatform.Android] = new[] { "application/vnd.ddcompanion.character", "application/octet-stream", "*/*" },
+                    [DevicePlatform.WinUI] = new[] { ".ddc" },
+                    [DevicePlatform.MacCatalyst] = new[] { "ddc" },
+                    [DevicePlatform.iOS] = new[] { "ddc" }
+                })
+            });
+
+            if (file is null)
+                return;
+
+            await using var stream = await file.OpenReadAsync();
+            var character = await CharacterStorage.ImportAsync(stream);
+
+            if (character is null)
+            {
+                Message = "Файл не является корректным DDC-персонажем.";
+                return;
+            }
+
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Message = $"Ошибка импорта: {ex.Message}";
+        }
+    }
+}

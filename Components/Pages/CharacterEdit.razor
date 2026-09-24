@@ -1,0 +1,45 @@
+@page "/characters/edit/{FileName}"
+@using DDCompanion.Models
+@using DDCompanion.Services
+@inject CharacterStorageService CharacterStorage
+@inject NavigationManager Navigation
+
+<PageTitle>Изменение персонажа</PageTitle>
+
+@if (Character is null)
+{
+    <div class="character-create"><h1>Персонаж не найден</h1></div>
+}
+else
+{
+    <div class="character-create">
+        <EditForm id="character-form" Model="@Character" OnValidSubmit="SaveCharacter">
+            <section class="character-hero">
+                <div class="avatar-column"><button class="avatar-picker" type="button" @onclick="PickAvatar">@if (!string.IsNullOrWhiteSpace(Character.ImageBase64)) { <img src="@Character.ImageBase64" alt="Аватар" /> } else { <span class="avatar-placeholder">+</span> }</button></div>
+                <div class="identity"><label>Имя<InputText @bind-Value="Character.Name" class="input" /></label><div class="two-columns"><label>Раса<InputText @bind-Value="Character.Species" class="input" /></label><label>Класс<InputText @bind-Value="Character.Class" class="input" /></label></div></div>
+            </section>
+            <section class="form-section"><h2>Основные сведения</h2><div class="two-columns"><label>Мировоззрение<InputText @bind-Value="Character.Worldview" class="input" /></label><label>Телосложение<InputText @bind-Value="Character.BodyType" class="input" /></label></div><label>Предыстория<InputTextArea @bind-Value="Character.Backstory" class="input textarea" /></label></section>
+            <section class="form-section"><h2>Характеристики</h2><div class="stats-grid"><label class="stat">Сила<InputNumber @bind-Value="Character.Stats.Strength" class="input" /></label><label class="stat">Ловкость<InputNumber @bind-Value="Character.Stats.Dexterity" class="input" /></label><label class="stat">Телосложение<InputNumber @bind-Value="Character.Stats.Constitution" class="input" /></label><label class="stat">Интеллект<InputNumber @bind-Value="Character.Stats.Intelligence" class="input" /></label><label class="stat">Мудрость<InputNumber @bind-Value="Character.Stats.Wisdom" class="input" /></label><label class="stat">Харизма<InputNumber @bind-Value="Character.Stats.Charisma" class="input" /></label></div></section>
+            <section class="form-section"><h2>Боевые параметры</h2><div class="stats-grid"><label class="stat">Текущее HP<InputNumber @bind-Value="Character.Combat.CurrentHealth" class="input" /></label><label class="stat">Макс. HP<InputNumber @bind-Value="Character.Combat.MaxHealth" class="input" /></label><label class="stat">Класс брони<InputNumber @bind-Value="Character.Combat.ArmorClass" class="input" /></label><label class="stat">Защита<InputNumber @bind-Value="Character.Combat.Protection" class="input" /></label></div><div class="two-columns"><label>Оружие<InputText @bind-Value="Character.Combat.Weapon" class="input" /></label><label>Броня<InputText @bind-Value="Character.Combat.Armor" class="input" /></label></div></section>
+            <section class="form-section"><div class="section-heading"><h2>Навыки</h2><button type="button" class="small-button" @onclick="AddSkill">Добавить</button></div>@foreach (var skill in Character.Skills) { <div class="list-row"><InputText @bind-Value="skill.Name" class="input" /><InputNumber @bind-Value="skill.Bonus" class="input bonus-input" /><label class="check"><InputCheckbox @bind-Value="skill.Proficient" /> Владение</label><button type="button" class="remove-button" @onclick="() => Character.Skills.Remove(skill)">×</button></div> }</section>
+            <section class="form-section"><div class="section-heading"><h2>Инвентарь</h2><button type="button" class="small-button" @onclick="AddItem">Добавить</button></div>@foreach (var item in Character.Inventory) { <div class="item-row"><InputText @bind-Value="item.Name" class="input" /><InputNumber @bind-Value="item.Quantity" class="input quantity-input" /><InputText @bind-Value="item.Description" class="input" /><button type="button" class="remove-button" @onclick="() => Character.Inventory.Remove(item)">×</button></div> }</section>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter] public string FileName { get; set; } = string.Empty;
+    private Character? Character;
+    private string? CharacterPath;
+    private string? AvatarError;
+
+    protected override async Task OnParametersSetAsync() { CharacterPath = CharacterStorage.GetCharacterPath(Uri.UnescapeDataString(FileName)); Character = await CharacterStorage.LoadAsync(CharacterPath); }
+    private void AddSkill() => Character!.Skills.Add(new CharacterSkill());
+    private void AddItem() => Character!.Inventory.Add(new CharacterItem());
+    private async Task SaveCharacter() { if (Character!.Combat.MaxHealth < 0) Character.Combat.MaxHealth = 0; if (Character.Combat.CurrentHealth > Character.Combat.MaxHealth) Character.Combat.CurrentHealth = Character.Combat.MaxHealth; await CharacterStorage.SaveToPathAsync(Character, CharacterPath!); Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(Path.GetFileName(CharacterPath!))}"); }
+    private async Task PickAvatar()
+    {
+        try { var p = await MediaPicker.Default.PickPhotoAsync(); if (p is null) return; await using var s = await p.OpenReadAsync(); using var m = new MemoryStream(); await s.CopyToAsync(m); var ext = Path.GetExtension(p.FileName).ToLowerInvariant(); var mime = ext == ".png" ? "image/png" : ext == ".webp" ? "image/webp" : "image/jpeg"; Character!.ImageBase64 = $"data:{mime};base64,{Convert.ToBase64String(m.ToArray())}"; }
+        catch (Exception ex) { AvatarError = ex.Message; }
+    }
+}

@@ -1,5 +1,65 @@
-﻿@page "/"
+@page "/"
+@using DDCompanion.Models
+@using DDCompanion.Services
+@inject CharacterStorageService CharacterStorage
+@inject NavigationManager Navigation
 
-<h1>Hello, world!</h1>
+<PageTitle>D&D Companion</PageTitle>
 
-Welcome to your new app.
+<div class="home">
+    <div class="home-heading">
+        <div>
+            <h1>Персонажи</h1>
+            <p>Твои сохранённые персонажи</p>
+        </div>
+    </div>
+
+    @if (Characters.Count == 0)
+    {
+        <div class="empty-state">
+            <span>Пока нет персонажей</span>
+            <button class="empty-create" type="button" @onclick="CreateCharacter">Создать первого персонажа</button>
+        </div>
+    }
+    else
+    {
+        <div class="character-grid">
+            @foreach (var character in Characters)
+            {
+                <article class="character-card" @onclick="() => OpenCharacter(character)">
+                    @if (!string.IsNullOrWhiteSpace(character.ImageBase64))
+                    {
+                        <img src="@character.ImageBase64" alt="@character.Name" />
+                    }
+                    else
+                    {
+                        <div class="card-avatar">?</div>
+                    }
+
+                    <div class="card-info">
+                        <h2>@character.Name</h2>
+                        <p>@character.Species · @character.Class</p>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Character> Characters = [];
+
+    private void CreateCharacter() => Navigation.NavigateTo("/characters/create");
+
+    private void OpenCharacter(Character character)
+    {
+        var fileName = $"{character.Name}.ddc";
+        Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(fileName)}");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CharacterStorage.ImportPendingAndroidFileAsync();
+        Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+    }
+}

@@ -1,0 +1,132 @@
+@page "/characters/create"
+@using DDCompanion.Models
+@using DDCompanion.Services
+@inject CharacterStorageService CharacterStorage
+@inject NavigationManager Navigation
+
+<PageTitle>Создание персонажа</PageTitle>
+
+<div class="character-create">
+    <EditForm id="character-form" Model="@Character" OnValidSubmit="CreateCharacter">
+        <DataAnnotationsValidator />
+
+        <section class="character-hero">
+            <div class="avatar-column">
+                <button class="avatar-picker" type="button" @onclick="PickAvatar">
+                    @if (!string.IsNullOrWhiteSpace(Character.ImageBase64))
+                    { <img src="@Character.ImageBase64" alt="Аватар персонажа" /> }
+                    else { <span class="avatar-placeholder">+</span> }
+                </button>
+                <span class="avatar-hint">Аватар персонажа</span>
+                @if (!string.IsNullOrWhiteSpace(AvatarError)) { <span class="avatar-error">@AvatarError</span> }
+            </div>
+            <div class="identity">
+                <label>Имя персонажа<InputText @bind-Value="Character.Name" class="input" placeholder="Например, Элира" /></label>
+                <div class="two-columns">
+                    <label>Раса<InputText @bind-Value="Character.Species" class="input" placeholder="Человек" /></label>
+                    <label>Класс<InputText @bind-Value="Character.Class" class="input" placeholder="Воин" /></label>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <h2>Основные сведения</h2>
+            <div class="two-columns">
+                <label>Мировоззрение<InputText @bind-Value="Character.Worldview" class="input" placeholder="Нейтрально-добрый" /></label>
+                <label>Телосложение<InputText @bind-Value="Character.BodyType" class="input" placeholder="Среднее" /></label>
+            </div>
+            <label>Предыстория<InputTextArea @bind-Value="Character.Backstory" class="input textarea" placeholder="Расскажи немного о персонаже..." /></label>
+        </section>
+
+        <section class="form-section">
+            <h2>Характеристики</h2>
+            <div class="stats-grid">
+                <label class="stat"><span>Сила</span><InputNumber @bind-Value="Character.Stats.Strength" class="input" /></label>
+                <label class="stat"><span>Ловкость</span><InputNumber @bind-Value="Character.Stats.Dexterity" class="input" /></label>
+                <label class="stat"><span>Телосложение</span><InputNumber @bind-Value="Character.Stats.Constitution" class="input" /></label>
+                <label class="stat"><span>Интеллект</span><InputNumber @bind-Value="Character.Stats.Intelligence" class="input" /></label>
+                <label class="stat"><span>Мудрость</span><InputNumber @bind-Value="Character.Stats.Wisdom" class="input" /></label>
+                <label class="stat"><span>Харизма</span><InputNumber @bind-Value="Character.Stats.Charisma" class="input" /></label>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <h2>Боевые параметры</h2>
+            <div class="stats-grid combat-grid">
+                <label class="stat"><span>Макс. HP</span><InputNumber @bind-Value="Character.Combat.MaxHealth" class="input" /></label>
+                <label class="stat"><span>Класс брони</span><InputNumber @bind-Value="Character.Combat.ArmorClass" class="input" /></label>
+                <label class="stat"><span>Защита</span><InputNumber @bind-Value="Character.Combat.Protection" class="input" /></label>
+            </div>
+            <div class="two-columns">
+                <label>Оружие<InputText @bind-Value="Character.Combat.Weapon" class="input" placeholder="Длинный меч" /></label>
+                <label>Броня<InputText @bind-Value="Character.Combat.Armor" class="input" placeholder="Кольчуга" /></label>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="section-heading"><div><h2>Навыки</h2><p>Можно оставить пустыми и добавить позже.</p></div><button type="button" class="small-button" @onclick="AddSkill">Добавить</button></div>
+            @foreach (var skill in Character.Skills)
+            {
+                <div class="list-row">
+                    <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
+                    <InputNumber @bind-Value="skill.Bonus" class="input bonus-input" />
+                    <label class="check"><InputCheckbox @bind-Value="skill.Proficient" /> Владение</label>
+                    <button type="button" class="remove-button" @onclick="() => RemoveSkill(skill)">×</button>
+                </div>
+            }
+        </section>
+
+        <section class="form-section">
+            <div class="section-heading"><div><h2>Инвентарь</h2><p>Предметы, с которыми персонаж начинает игру.</p></div><button type="button" class="small-button" @onclick="AddItem">Добавить</button></div>
+            @foreach (var item in Character.Inventory)
+            {
+                <div class="item-row">
+                    <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
+                    <InputNumber @bind-Value="item.Quantity" class="input quantity-input" />
+                    <InputText @bind-Value="item.Description" class="input" placeholder="Описание" />
+                    <button type="button" class="remove-button" @onclick="() => RemoveItem(item)">×</button>
+                </div>
+            }
+        </section>
+    </EditForm>
+</div>
+
+@code {
+    private Character Character { get; } = new();
+    private string? AvatarError;
+
+    private async Task PickAvatar()
+    {
+        AvatarError = null;
+        try
+        {
+            var photoPermission = await Permissions.CheckStatusAsync<Permissions.Photos>();
+            if (photoPermission != PermissionStatus.Granted)
+                photoPermission = await Permissions.RequestAsync<Permissions.Photos>();
+            if (photoPermission != PermissionStatus.Granted) { AvatarError = "Нет разрешения на доступ к фотографиям."; return; }
+            var photo = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions { Title = "Выберите аватар персонажа" });
+            if (photo is null) return;
+            await using var stream = await photo.OpenReadAsync();
+            using var memory = new MemoryStream();
+            await stream.CopyToAsync(memory);
+            var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
+            var mime = extension switch { ".png" => "image/png", ".webp" => "image/webp", _ => "image/jpeg" };
+            Character.ImageBase64 = $"data:{mime};base64,{Convert.ToBase64String(memory.ToArray())}";
+        }
+        catch (Exception ex) { AvatarError = $"Не удалось выбрать изображение: {ex.Message}"; }
+    }
+
+    private void AddSkill() => Character.Skills.Add(new CharacterSkill());
+    private void RemoveSkill(CharacterSkill skill) => Character.Skills.Remove(skill);
+    private void AddItem() => Character.Inventory.Add(new CharacterItem());
+    private void RemoveItem(CharacterItem item) => Character.Inventory.Remove(item);
+
+    private async Task CreateCharacter()
+    {
+        if (string.IsNullOrWhiteSpace(Character.Name)) Character.Name = "Безымянный персонаж";
+        if (Character.Combat.MaxHealth < 0) Character.Combat.MaxHealth = 0;
+        Character.Combat.CurrentHealth = Character.Combat.MaxHealth;
+        var path = await CharacterStorage.SaveAsync(Character);
+        Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(Path.GetFileName(path))}");
+    }
+}

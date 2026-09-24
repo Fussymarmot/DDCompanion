@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
+using DDCompanion.Services;
 
 namespace DDCompanion;
 
@@ -15,6 +16,7 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
+		builder.Services.AddSingleton<CharacterStorageService>();
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();

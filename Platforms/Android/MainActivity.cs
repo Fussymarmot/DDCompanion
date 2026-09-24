@@ -1,8 +1,10 @@
-﻿using Android.App;
+using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
 using AndroidX.Core.View;
+using Microsoft.Maui.Storage;
 
 namespace DDCompanion;
 
@@ -15,21 +17,35 @@ namespace DDCompanion;
                            | ConfigChanges.UiMode
                            | ConfigChanges.ScreenLayout
                            | ConfigChanges.SmallestScreenSize
-                           | ConfigChanges.Density)]
+                           | ConfigChanges.Density,
+    LaunchMode = LaunchMode.SingleTop)]
 public class MainActivity : MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
+        HandleOpenIntent(Intent);
 
         WindowCompat.SetDecorFitsSystemWindows(Window, false);
-
-        ViewCompat.SetOnApplyWindowInsetsListener(
-            Window.DecorView,
-            new InsetsListener()
-        );
-
+        ViewCompat.SetOnApplyWindowInsetsListener(Window.DecorView, new InsetsListener());
         ViewCompat.RequestApplyInsets(Window.DecorView);
+    }
+
+    protected override void OnNewIntent(Intent? intent)
+    {
+        base.OnNewIntent(intent);
+
+        if (intent is not null)
+            HandleOpenIntent(intent);
+    }
+
+    private static void HandleOpenIntent(Intent? intent)
+    {
+        var uri = intent?.Data;
+        if (uri is null || !string.Equals(intent?.Action, Intent.ActionView, StringComparison.Ordinal))
+            return;
+
+        Preferences.Default.Set("pending_ddc_uri", uri.ToString());
     }
 
     private sealed class InsetsListener
@@ -43,16 +59,9 @@ public class MainActivity : MauiAppCompatActivity
                 return insets;
 
             var systemBars = insets.GetInsets(
-                global::AndroidX.Core.View.WindowInsetsCompat.Type.SystemBars()
-            );
+                global::AndroidX.Core.View.WindowInsetsCompat.Type.SystemBars());
 
-            view.SetPadding(
-                systemBars.Left,
-                systemBars.Top,
-                systemBars.Right,
-                systemBars.Bottom
-            );
-
+            view.SetPadding(systemBars.Left, systemBars.Top, systemBars.Right, systemBars.Bottom);
             return insets;
         }
     }
