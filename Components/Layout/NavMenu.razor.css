@@ -253,3 +253,37 @@
         gap: 0;
     }
 }
+
+.more-button {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.more-button span {
+    display: block;
+    transform: translateY(-2px);
+}
+
+.character-page-actions {
+    width: 220px;
+    position: fixed;
+    top: 62px;
+    right: 10px;
+    left: auto;
+    padding: 6px;
+}
+
+.character-page-actions .character-action {
+    min-height: 44px;
+    font-size: 15px;
+}
+
+.character-page-actions .danger-action {
+    color: #ef5350;
+}
+
+.character-page-actions .danger-action:hover {
+    background: rgba(198, 40, 40, 0.16);
+    color: #ff6b6b;
+}

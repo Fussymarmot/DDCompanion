@@ -90,6 +90,31 @@ public sealed class CharacterStorageService
     public async Task<bool> ImportPendingAndroidFileAsync()
     {
 #if ANDROID
+        var pendingPath = Preferences.Default.Get("pending_ddc_path", string.Empty);
+        if (!string.IsNullOrWhiteSpace(pendingPath))
+        {
+            try
+            {
+                if (!File.Exists(pendingPath))
+                    return false;
+
+                await using var fileStream = File.OpenRead(pendingPath);
+                var character = await ImportAsync(fileStream);
+                if (character is null)
+                    return false;
+
+                Preferences.Default.Remove("pending_ddc_path");
+                TryDeleteFile(pendingPath);
+                return true;
+            }
+            catch
+            {
+                TryDeleteFile(pendingPath);
+                Preferences.Default.Remove("pending_ddc_path");
+                return false;
+            }
+        }
+
         var uriString = Preferences.Default.Get("pending_ddc_uri", string.Empty);
         if (string.IsNullOrWhiteSpace(uriString))
             return false;
@@ -100,8 +125,8 @@ public sealed class CharacterStorageService
             if (uri is null)
                 return false;
 
-            var resolver = Android.App.Application.Context?.ContentResolver;
-            await using var stream = resolver?.OpenInputStream(uri);
+            var resolver = Android.App.Application.Context.ContentResolver;
+            await using var stream = resolver.OpenInputStream(uri);
             if (stream is null)
                 return false;
 
@@ -114,11 +139,25 @@ public sealed class CharacterStorageService
         }
         catch
         {
+            // Invalid/expired URI grants must not crash the application.
             return false;
         }
 #else
         return false;
 #endif
+    }
+
+    private static void TryDeleteFile(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+        catch
+        {
+            // Cache cleanup is best-effort.
+        }
     }
 
     public string GetCharactersDirectory() => CharactersDirectory;

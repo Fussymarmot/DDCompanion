@@ -18,7 +18,7 @@
     {
         <div class="empty-state">
             <span>Пока нет персонажей</span>
-            <button class="empty-create" type="button" @onclick="CreateCharacter">Создать первого персонажа</button>
+            <span>Нажми «+» в шапке, чтобы создать персонажа.</span>
         </div>
     }
     else
@@ -48,9 +48,7 @@
 
 @code {
     private List<Character> Characters = [];
-
-    private void CreateCharacter() => Navigation.NavigateTo("/characters/create");
-
+    
     private void OpenCharacter(Character character)
     {
         var fileName = $"{character.Name}.ddc";
@@ -59,7 +57,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await CharacterStorage.ImportPendingAndroidFileAsync();
-        Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+        try
+        {
+            await CharacterStorage.ImportPendingAndroidFileAsync();
+            Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+        }
+        catch
+        {
+            // A malformed external file must never prevent the home page from opening.
+            Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+        }
     }
 }
