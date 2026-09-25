@@ -70,7 +70,7 @@
                 <div class="skill-card">
                     <button type="button" class="remove-button card-remove" aria-label="Удалить навык" @onclick="() => RemoveSkill(skill)">×</button>
                     <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
-                    <InputText @bind-Value="skill.Description" class="input" placeholder="Описание" />
+                    <InputTextArea @bind-Value="skill.Description" class="input description-input" placeholder="Описание" rows="3" />
                 </div>
             }
         </section>
@@ -83,8 +83,8 @@
                     <button type="button" class="remove-button card-remove" aria-label="Удалить предмет" @onclick="() => RemoveItem(item)">×</button>
                     <div class="item-card-fields">
                         <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
-                        <InputNumber @bind-Value="item.Quantity" class="input quantity-input" />
-                        <InputText @bind-Value="item.Description" class="input" placeholder="Описание" />
+                        <div class="quantity-field"><span class="quantity-label">Количество</span><InputNumber @bind-Value="item.Quantity" class="input quantity-input" /></div>
+                        <InputTextArea @bind-Value="item.Description" class="input description-input" placeholder="Описание" rows="3" />
                     </div>
                 </div>
             }

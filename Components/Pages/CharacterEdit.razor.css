@@ -160,43 +160,114 @@ label {
 .skill-card, .item-card {
     position: relative;
     margin-top: 12px;
-    padding: 16px;
-    padding-top: 20px;
+    padding: 42px 16px 16px;
     border: 2px solid #3a3a3a;
     border-radius: 12px;
     background: #171717;
     box-shadow: 0 0 0 1px rgba(255,255,255,.02);
     box-sizing: border-box;
 }
+
 .skill-card {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
 }
+
 .item-card-fields {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 90px minmax(0, 1.5fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
 }
+
 .card-remove {
     position: absolute;
-    top: 6px;
-    right: 6px;
+    top: 7px;
+    right: 7px;
     z-index: 2;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     display: grid;
     place-items: center;
     margin: 0;
     padding: 0;
-    border: 1px solid #3a3a3a;
+    border: 0;
     border-radius: 7px;
-    background: #202020;
+    background: transparent;
     color: #ef5350;
-    font-size: 21px;
+    font-size: 28px;
     line-height: 1;
+    cursor: pointer;
 }
+
+.card-remove:hover {
+    background: #242424;
+}
+
+.description-input {
+    min-height: 96px;
+    resize: vertical;
+    overflow: auto;
+}
+
+.quantity-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.quantity-label {
+    flex: 0 0 auto;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.quantity-input {
+    width: 72px;
+    min-width: 72px;
+    text-align: center;
+    flex: 0 0 72px;
+}
+
 @media(max-width:650px) {
-    .item-card-fields { grid-template-columns: minmax(0, 1fr) 80px; }
-    .item-card-fields .input:last-child { grid-column: 1 / -1; }
+    .skill-card, .item-card {
+        padding: 42px 12px 12px;
+    }
+
+    .quantity-field {
+        gap: 8px;
+    }
+
+    .quantity-input {
+        width: 64px;
+        min-width: 64px;
+        flex-basis: 64px;
+    }
+}
+
+
+/* Card layout polish */
+.skill-card,
+.item-card {
+    padding: 14px 48px 16px 16px;
+}
+
+.quantity-field {
+    width: 100%;
+}
+
+.quantity-input {
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+@media (max-width: 650px) {
+    .skill-card,
+    .item-card {
+        padding: 14px 48px 14px 12px;
+    }
 }

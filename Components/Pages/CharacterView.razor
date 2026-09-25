@@ -31,20 +31,58 @@ else
         </section>
 
         <section class="view-section">
+            <h2>Основные сведения</h2>
+            <div class="character-details-grid">
+                <div class="character-detail">
+                    <span class="detail-label">Мировоззрение</span>
+                    <strong class="detail-value">@(string.IsNullOrWhiteSpace(Character.Worldview) ? "—" : Character.Worldview)</strong>
+                </div>
+                <div class="character-detail">
+                    <span class="detail-label">Телосложение</span>
+                    <strong class="detail-value">@(string.IsNullOrWhiteSpace(Character.BodyType) ? "—" : Character.BodyType)</strong>
+                </div>
+                <div class="character-detail character-detail-wide">
+                    <span class="detail-label">Предыстория</span>
+                    <p class="detail-text">@(string.IsNullOrWhiteSpace(Character.Backstory) ? "—" : Character.Backstory)</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="view-section">
             <h2>Здоровье</h2>
-            <div class="value-control">
-                <button class="value-button danger" type="button" @onclick="() => ChangeHealth(-1)">−</button>
-                <strong>@Character.Combat.CurrentHealth / @Character.Combat.MaxHealth</strong>
-                <button class="value-button" type="button" @onclick="() => ChangeHealth(1)">+</button>
+            <div class="character-detail health-detail">
+                <span class="detail-label">Текущее здоровье</span>
+                <div class="value-row">
+                    <button class="value-button danger" type="button" @onclick="() => ChangeHealth(-1)" aria-label="Уменьшить здоровье">−</button>
+                    <strong class="detail-value health-value">@Character.Combat.CurrentHealth / @Character.Combat.MaxHealth</strong>
+                    <button class="value-button" type="button" @onclick="() => ChangeHealth(1)" aria-label="Увеличить здоровье">+</button>
+                </div>
             </div>
         </section>
 
         <section class="view-section">
-            <h2>Защита</h2>
-            <div class="value-control">
-                <button class="value-button danger" type="button" @onclick="() => ChangeProtection(-1)">−</button>
-                <strong>@Character.Combat.Protection</strong>
-                <button class="value-button" type="button" @onclick="() => ChangeProtection(1)">+</button>
+            <h2>Боевые параметры</h2>
+            <div class="combat-details-grid">
+                <div class="character-detail">
+                    <span class="detail-label">Класс брони</span>
+                    <strong class="detail-value">@Character.Combat.ArmorClass</strong>
+                </div>
+                <div class="character-detail protection-detail">
+                    <span class="detail-label">Защита</span>
+                    <div class="value-row">
+                        <button class="value-button danger" type="button" @onclick="() => ChangeProtection(-1)">−</button>
+                        <strong class="detail-value">@Character.Combat.Protection</strong>
+                        <button class="value-button" type="button" @onclick="() => ChangeProtection(1)">+</button>
+                    </div>
+                </div>
+                <div class="character-detail">
+                    <span class="detail-label">Оружие</span>
+                    <strong class="detail-value">@(string.IsNullOrWhiteSpace(Character.Combat.Weapon) ? "—" : Character.Combat.Weapon)</strong>
+                </div>
+                <div class="character-detail">
+                    <span class="detail-label">Броня</span>
+                    <strong class="detail-value">@(string.IsNullOrWhiteSpace(Character.Combat.Armor) ? "—" : Character.Combat.Armor)</strong>
+                </div>
             </div>
         </section>
 
@@ -67,7 +105,7 @@ else
                 <div class="skill-card">
                     <button class="remove-button card-remove" type="button" aria-label="Удалить навык" @onclick="() => RemoveSkill(skill)">×</button>
                     <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
-                    <InputText @bind-Value="skill.Description" class="input" placeholder="Описание" />
+                    <InputTextArea @bind-Value="skill.Description" class="input description-input" placeholder="Описание" rows="3" />
                 </div>
             }
         </section>
@@ -80,8 +118,8 @@ else
                     <button class="remove-button card-remove" type="button" aria-label="Удалить предмет" @onclick="() => RemoveItem(item)">×</button>
                     <div class="item-card-fields">
                         <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
-                        <InputNumber @bind-Value="item.Quantity" class="input quantity-input" />
-                        <InputText @bind-Value="item.Description" class="input" placeholder="Описание" />
+                        <div class="quantity-field"><span class="quantity-label">Количество</span><InputNumber @bind-Value="item.Quantity" class="input quantity-input" /></div>
+                        <InputTextArea @bind-Value="item.Description" class="input description-input" placeholder="Описание" rows="3" />
                     </div>
                 </div>
             }

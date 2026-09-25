@@ -19,6 +19,57 @@
 .value-button.danger { background:#292929; }
 .stat-value-control { justify-content:flex-start; gap:8px; }
 .stat-button { width:34px; height:34px; border-radius:8px; font-size:20px; }
+
+.character-details-grid, .combat-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.character-detail {
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid #303030;
+    border-radius: 9px;
+    background: #101010;
+}
+.character-detail > span {
+    display: block;
+    margin-bottom: 5px;
+    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+}
+.character-detail > strong {
+    display: block;
+    color: #fff;
+    font-size: 15px;
+    overflow-wrap: anywhere;
+}
+.character-detail p {
+    margin: 0;
+    color: #ddd;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+.character-detail-wide {
+    grid-column: 1 / -1;
+}
+.protection-detail {
+    display: flex;
+    flex-direction: column;
+}
+.detail-value-control {
+    justify-content: flex-start;
+    gap: 8px;
+}
+.detail-value-control .value-button {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 20px;
+}
+
 .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
 .stat-control { display:flex; flex-direction:column; gap:8px; color:#bdbdbd; font-size:13px; font-weight:600; }
 .stat-label { display:flex; align-items:center; justify-content:space-between; gap:8px; }
@@ -64,43 +115,276 @@
 .skill-card, .item-card {
     position: relative;
     margin-top: 12px;
-    padding: 16px;
-    padding-top: 20px;
+    padding: 42px 16px 16px;
     border: 2px solid #3a3a3a;
     border-radius: 12px;
     background: #171717;
     box-shadow: 0 0 0 1px rgba(255,255,255,.02);
     box-sizing: border-box;
 }
+
 .skill-card {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
 }
+
 .item-card-fields {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 90px minmax(0, 1.5fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
 }
+
 .card-remove {
     position: absolute;
-    top: 6px;
-    right: 6px;
+    top: 7px;
+    right: 7px;
     z-index: 2;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     display: grid;
     place-items: center;
     margin: 0;
     padding: 0;
-    border: 1px solid #3a3a3a;
+    border: 0;
     border-radius: 7px;
-    background: #202020;
+    background: transparent;
     color: #ef5350;
-    font-size: 21px;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.card-remove:hover {
+    background: #242424;
+}
+
+.description-input {
+    min-height: 96px;
+    resize: vertical;
+    overflow: auto;
+}
+
+.quantity-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.quantity-label {
+    flex: 0 0 auto;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.quantity-input {
+    width: auto;
+    min-width: 0;
+    text-align: center;
+    flex: 1 1 auto;
+}
+
+@media(max-width:650px) {
+    .skill-card, .item-card {
+        padding: 42px 12px 12px;
+    }
+
+    .quantity-field {
+        gap: 8px;
+    }
+
+    .quantity-input {
+        width: auto;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .character-details-grid, .combat-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* === Character cards / view polish === */
+.skill-card,
+.item-card {
+    position: relative;
+    margin-top: 12px;
+    padding: 14px 48px 16px 16px;
+    border: 2px solid #3a3a3a;
+    border-radius: 12px;
+    background: #171717;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.02);
+    box-sizing: border-box;
+}
+
+.skill-card,
+.item-card-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+}
+
+.card-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #ef5350;
+    font-size: 28px;
     line-height: 1;
 }
-@media(max-width:650px) {
-    .item-card-fields { grid-template-columns: minmax(0, 1fr) 80px; }
-    .item-card-fields .input:last-child { grid-column: 1 / -1; }
+
+.card-remove:hover {
+    background: #242424;
+}
+
+.description-input {
+    min-height: 96px;
+    resize: vertical;
+    overflow: auto;
+}
+
+.quantity-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+}
+
+.quantity-label {
+    flex: 0 0 auto;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.quantity-input {
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    text-align: center;
+}
+
+/* Character view: compact, readable information cards */
+.character-details-grid,
+.combat-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.character-detail {
+    min-width: 0;
+    padding: 13px 14px;
+    border: 1px solid #303030;
+    border-radius: 10px;
+    background: #101010;
+}
+
+.detail-label {
+    display: block;
+    margin: 0 0 6px;
+    color: #999;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+.detail-value {
+    display: block;
+    margin: 0;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.detail-text {
+    margin: 0;
+    color: #ddd;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+
+.character-detail-wide {
+    grid-column: 1 / -1;
+}
+
+.protection-detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.value-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 36px;
+}
+
+.value-row .value-button {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 9px;
+    font-size: 21px;
+}
+
+.value-row .detail-value {
+    min-width: 30px;
+    text-align: center;
+}
+
+@media (max-width: 650px) {
+    .skill-card,
+    .item-card {
+        padding: 14px 48px 14px 12px;
+    }
+
+    .character-details-grid,
+    .combat-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .character-detail-wide {
+        grid-column: auto;
+    }
+}
+
+
+/* Health uses the same compact card language as the combat parameters. */
+.health-detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.health-value {
+    min-width: 72px;
+    text-align: center;
+}
+
+@media (max-width: 650px) {
+    .health-value-row {
+        gap: 10px;
+    }
 }
