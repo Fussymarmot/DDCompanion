@@ -61,7 +61,7 @@ else
     
     private void OpenCharacter(Character character)
     {
-        var fileName = $"{character.Name}.ddc";
+        var fileName = character.StorageFileName ?? $"{character.Name}.ddc";
         Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(fileName)}");
     }
 

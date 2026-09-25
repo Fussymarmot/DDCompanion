@@ -9,7 +9,7 @@ using Microsoft.Maui.Storage;
 namespace DDCompanion;
 
 [Activity(
-    Theme = "@style/Maui.SplashTheme",
+    Theme = "@style/DDCompanionTheme",
     MainLauncher = true,
     Icon = "@mipmap/ic_launcher",
     ScreenOrientation = ScreenOrientation.Portrait,
@@ -39,6 +39,9 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
+
+        Window.SetStatusBarColor(global::Android.Graphics.Color.Black);
+        Window.SetNavigationBarColor(global::Android.Graphics.Color.Black);
 
         HandleIncomingIntent(Intent);
 

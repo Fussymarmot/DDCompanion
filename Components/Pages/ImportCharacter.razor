@@ -54,6 +54,10 @@
 
             Navigation.NavigateTo("/");
         }
+        catch (CharacterStorageService.CharacterAlreadyExistsException ex)
+        {
+            Message = ex.Message;
+        }
         catch (Exception ex)
         {
             Message = $"Ошибка импорта: {ex.Message}";

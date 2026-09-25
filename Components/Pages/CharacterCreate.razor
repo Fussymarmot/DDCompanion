@@ -7,6 +7,11 @@
 <PageTitle>Создание персонажа</PageTitle>
 
 <div class="character-create">
+    @if (!string.IsNullOrWhiteSpace(SaveError))
+    {
+        <div class="avatar-error">@SaveError</div>
+    }
+
     <EditForm id="character-form" Model="@Character" OnValidSubmit="CreateCharacter">
         <DataAnnotationsValidator />
 
@@ -95,6 +100,7 @@
 @code {
     private Character Character { get; } = new();
     private string? AvatarError;
+    private string? SaveError;
 
     protected override void OnInitialized() => Character.Stats.RecalculateModifiers();
 
@@ -129,7 +135,16 @@
         if (string.IsNullOrWhiteSpace(Character.Name)) Character.Name = "Безымянный персонаж";
         if (Character.Combat.MaxHealth < 0) Character.Combat.MaxHealth = 0;
         Character.Combat.CurrentHealth = Character.Combat.MaxHealth;
-        var path = await CharacterStorage.SaveAsync(Character);
-        Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(Path.GetFileName(path))}");
+        SaveError = null;
+
+        try
+        {
+            var path = await CharacterStorage.SaveAsync(Character);
+            Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(Path.GetFileName(path))}");
+        }
+        catch (CharacterStorageService.CharacterAlreadyExistsException ex)
+        {
+            SaveError = ex.Message;
+        }
     }
 }

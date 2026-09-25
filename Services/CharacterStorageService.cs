@@ -29,7 +29,10 @@ public sealed class CharacterStorageService
             {
                 var character = await LoadAsync(file);
                 if (character is not null)
+                {
+                    character.StorageFileName = Path.GetFileName(file);
                     result.Add(character);
+                }
             }
             catch (JsonException) { }
             catch (IOException) { }
@@ -54,6 +57,7 @@ public sealed class CharacterStorageService
             await SaveToPathAsync(data.Character, path);
         }
 
+        data.Character.StorageFileName = Path.GetFileName(path);
         return data.Character;
     }
 
@@ -66,12 +70,12 @@ public sealed class CharacterStorageService
             baseName = "character";
 
         var path = Path.Combine(CharactersDirectory, $"{baseName}.ddc");
-        var suffix = 2;
 
-        while (File.Exists(path))
-            path = Path.Combine(CharactersDirectory, $"{baseName}_{suffix++}.ddc");
+        if (File.Exists(path))
+            throw new CharacterAlreadyExistsException($"Персонаж с именем «{character.Name}» уже существует.");
 
         await SaveToPathAsync(character, path);
+        character.StorageFileName = Path.GetFileName(path);
 
         return path;
     }
@@ -194,6 +198,11 @@ public sealed class CharacterStorageService
         await Task.Run(() => File.Delete(path));
 
         return true;
+    }
+
+    public sealed class CharacterAlreadyExistsException : Exception
+    {
+        public CharacterAlreadyExistsException(string message) : base(message) { }
     }
 
     private static string MakeSafeFileName(string value)

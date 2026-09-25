@@ -1,7 +1,13 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace DDCompanion.Models;
 
 public class Character
 {
+    [JsonIgnore]
+    public string? StorageFileName { get; set; }
+
     public string ImageBase64 { get; set; } = string.Empty;
     
     public string Name { get; set; } = string.Empty;
