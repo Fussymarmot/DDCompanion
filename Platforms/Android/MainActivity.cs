@@ -12,6 +12,7 @@ namespace DDCompanion;
     Theme = "@style/Maui.SplashTheme",
     MainLauncher = true,
     Icon = "@mipmap/ic_launcher",
+    ScreenOrientation = ScreenOrientation.Portrait,
     ConfigurationChanges = ConfigChanges.ScreenSize
                            | ConfigChanges.Orientation
                            | ConfigChanges.UiMode

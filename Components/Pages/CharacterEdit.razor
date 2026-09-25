@@ -41,7 +41,19 @@ else
     private async Task SaveCharacter() { if (Character!.Combat.MaxHealth < 0) Character.Combat.MaxHealth = 0; if (Character.Combat.CurrentHealth > Character.Combat.MaxHealth) Character.Combat.CurrentHealth = Character.Combat.MaxHealth; await CharacterStorage.SaveToPathAsync(Character, CharacterPath!); Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(Path.GetFileName(CharacterPath!))}"); }
     private async Task PickAvatar()
     {
-        try { var p = await MediaPicker.Default.PickPhotoAsync(); if (p is null) return; await using var s = await p.OpenReadAsync(); using var m = new MemoryStream(); await s.CopyToAsync(m); var ext = Path.GetExtension(p.FileName).ToLowerInvariant(); var mime = ext == ".png" ? "image/png" : ext == ".webp" ? "image/webp" : "image/jpeg"; Character!.ImageBase64 = $"data:{mime};base64,{Convert.ToBase64String(m.ToArray())}"; }
-        catch (Exception ex) { AvatarError = ex.Message; }
+        try
+        {
+            var p = await MediaPicker.Default.PickPhotoAsync();
+            if (p is null) return;
+
+            await using var stream = await p.OpenReadAsync();
+
+            Character!.ImageBase64 =
+                await ImageCompressionService.CompressAsync(stream);
+        }
+        catch (Exception ex)
+        {
+            AvatarError = ex.Message;
+        }
     }
 }
