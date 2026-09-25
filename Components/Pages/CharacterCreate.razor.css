@@ -1,3 +1,5 @@
+/* Character creation form: avatar picker, identity, stats, combat, skills and inventory. */
+
 .character-create {
     width: min(900px, 100%);
     margin: 0 auto;

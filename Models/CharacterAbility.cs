@@ -1,3 +1,5 @@
+// A named character ability with its description.
+
 namespace DDCompanion.Models;
 
 public class CharacterAbility

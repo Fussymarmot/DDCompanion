@@ -108,8 +108,8 @@ public class MainActivity : MauiAppCompatActivity
         }
         catch
         {
-            // Content URI может быть доступен только через выданное Android разрешение.
-            // Сохраняем URI и пробуем открыть его уже из приложения.
+            // A content URI may only be accessible through a temporary Android grant.
+            // Fall back to storing the URI and opening it from inside the app.
             var uriString = uri.ToString();
             Preferences.Default.Set("pending_ddc_uri", uriString);
             Preferences.Default.Remove("pending_ddc_path");

@@ -1,23 +1,17 @@
+// Bridge between platform code (e.g. an Android Activity that received an
+// intent to open a character file) and the Blazor UI.
+//
+// Previously this was done via Preferences and checked only once in
+// Home.OnInitializedAsync, which caused two problems:
+//  - on a "warm" start (app already running, user opens another file)
+//    nothing happened, because Home.OnInitializedAsync is not called again;
+//  - a successful import gave no visible feedback — the Home list was
+//    refreshed, but the file itself was never "opened".
+//
+// Now platform code just calls <see cref="Set"/>, while Blazor subscribes to
+// <see cref="Requested"/> once in MainLayout (which lives for the whole app
+// lifetime) and navigates to the imported character's page itself.
 namespace DDCompanion.Services;
-
-/// <summary>
-/// Мост между платформенным кодом (например, Android-Activity, получившей
-/// intent на открытие файла персонажа) и Blazor UI.
-///
-/// Раньше это делалось через Preferences и проверялось только один раз —
-/// в OnInitializedAsync страницы Home. Из-за этого:
-///  - при "тёплом" старте (приложение уже открыто, потом пользователь
-///    открывает файл ещё раз) ничего не происходило вообще, потому что
-///    Home.OnInitializedAsync уже не вызывается повторно;
-///  - при успешном импорте не было видимой реакции — обновлялся список на
-///    Home, но сам файл никуда не "открывался", поэтому казалось, что
-///    ничего не произошло, если такого персонажа ещё не было.
-///
-/// Теперь платформенный код просто вызывает <see cref="Set"/>, а Blazor
-/// подписывается на <see cref="Requested"/> один раз в MainLayout (который
-/// живёт всё время работы приложения) и сам переходит на страницу
-/// импортированного персонажа.
-/// </summary>
 public static class PendingCharacterImport
 {
     private static string? _pendingUri;

@@ -1,3 +1,5 @@
+// Combat-related character data: health, armor class, weapon and armor.
+
 namespace DDCompanion.Models;
 
 public class CharacterCombat

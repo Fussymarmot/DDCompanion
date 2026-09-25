@@ -1,3 +1,5 @@
+// A named character skill with its description.
+
 namespace DDCompanion.Models;
 
 public class CharacterSkill

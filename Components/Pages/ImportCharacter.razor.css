@@ -1,3 +1,5 @@
+/* Character import page: centered card with file picker button. */
+
 .import-page {
     min-height: calc(100vh - 56px);
     display: grid;

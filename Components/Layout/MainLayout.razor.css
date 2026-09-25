@@ -1,3 +1,5 @@
+/* Root layout: app shell and content area. */
+
 .app {
     min-height: 100vh;
     display: flex;

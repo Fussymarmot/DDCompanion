@@ -1,3 +1,5 @@
+ /* Character view page: profile, detail cards, stat controls and loading overlay. */
+
  .character-view {
     width: min(900px, 100%);
     margin: 0 auto;

@@ -1,3 +1,6 @@
+// Compresses picked avatar images into small base64 JPEG data URIs.
+// Real compression is only implemented for Android; other platforms keep the original bytes.
+
 using System;
 
 namespace DDCompanion.Services;
@@ -12,8 +15,8 @@ public static class ImageCompressionService
 #if ANDROID
         return await CompressAndroidAsync(input);
 #else
-        // Для не-Android платформ сохраняем исходный файл, чтобы сервис
-        // оставался доступным при сборке проекта под другие платформы.
+        // Non-Android platforms keep the original file so the service
+        // still works when the project is built for other targets.
         using var memory = new MemoryStream();
         await input.CopyToAsync(memory);
         return $"data:image/jpeg;base64,{Convert.ToBase64String(memory.ToArray())}";

@@ -1,3 +1,5 @@
+// A single inventory item with quantity and description.
+
 namespace DDCompanion.Models;
 
 public class CharacterItem

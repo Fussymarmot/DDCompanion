@@ -1,3 +1,5 @@
+/* Character editing form: same layout as the creation form. */
+
 .character-create {
     width: min(900px, 100%);
     margin: 0 auto;

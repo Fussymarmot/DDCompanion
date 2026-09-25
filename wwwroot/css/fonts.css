@@ -1,3 +1,5 @@
+/* Custom display fonts used across the app. */
+
 @font-face {
     font-family: "Prophecy";
     src: url("../fonts/prophecy.ttf") format("truetype");

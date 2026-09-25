@@ -1,3 +1,5 @@
+/* Not-found page: centered 404 message with a home button. */
+
 .not-found {
     min-height: calc(100vh - 56px);
     display: flex;

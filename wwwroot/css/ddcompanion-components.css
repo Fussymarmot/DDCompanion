@@ -2,6 +2,7 @@
 /* D&D Companion global component-style fallback.
    Component CSS is also enabled in the Razor build; this file keeps the UI styled
    in BlazorWebView even when a stale generated scoped stylesheet is cached. */
+
 .app {
     min-height: 100vh;
     display: flex;
@@ -37,7 +38,7 @@
 
 
 /* =========================
-   Общие кнопки
+   Buttons
    ========================= */
 
 .header-button {
@@ -93,7 +94,7 @@
 
 
 /* =========================
-   Левая / правая стороны
+   Left / right sides
    ========================= */
 
 .nav-header > .header-button:first-child {
@@ -106,7 +107,7 @@
 
 
 /* =========================
-   Заголовок
+   App title
    ========================= */
 
 .app-title {
@@ -136,7 +137,7 @@
 
 
 /* =========================
-   Заголовок страницы
+   Page title
    ========================= */
 
 .page-title {
@@ -152,7 +153,7 @@
 
 
 /* =========================
-   Пара кнопок справа
+   Right-side button pair
    ========================= */
 
 .header-actions {
@@ -167,7 +168,7 @@
 
 
 /* =========================
-   Пустая правая сторона
+   Empty right side
    ========================= */
 
 .header-placeholder {
@@ -179,7 +180,7 @@
 
 
 /* =========================
-   Окно выбора создания
+   Character actions menu
    ========================= */
 
 .character-actions-overlay {
@@ -247,7 +248,7 @@
 
 
 /* =========================
-   Адаптация
+   Responsive
    ========================= */
 
 @media (max-width: 480px) {

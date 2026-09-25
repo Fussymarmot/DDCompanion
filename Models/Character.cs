@@ -1,10 +1,12 @@
-using System.Text.Json;
+// Root character model: identity, stats, combat info, skills and inventory.
+
 using System.Text.Json.Serialization;
 
 namespace DDCompanion.Models;
 
 public class Character
 {
+    // File name inside the app's Characters folder; not persisted in .ddc files.
     [JsonIgnore]
     public string? StorageFileName { get; set; }
 

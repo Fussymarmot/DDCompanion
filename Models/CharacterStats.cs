@@ -1,23 +1,25 @@
+// D&D ability scores (STR/DEX/CON/INT/WIS/CHA) with derived modifiers.
+
 namespace DDCompanion.Models;
 
 public class CharacterStats
 {
-    public int Strength { get; set; } //сила
+    public int Strength { get; set; }
     public int StrengthModifier { get; set; }
 
-    public int Dexterity { get; set; } // ловкость
+    public int Dexterity { get; set; }
     public int DexterityModifier { get; set; }
 
-    public int Constitution { get; set; } // телосложение
+    public int Constitution { get; set; }
     public int ConstitutionModifier { get; set; }
 
-    public int Intelligence { get; set; } // интелект
+    public int Intelligence { get; set; }
     public int IntelligenceModifier { get; set; }
 
-    public int Wisdom { get; set; } //мудрость
+    public int Wisdom { get; set; }
     public int WisdomModifier { get; set; }
 
-    public int Charisma { get; set; } //харизма
+    public int Charisma { get; set; }
     public int CharismaModifier { get; set; }
 
     public void RecalculateModifiers()

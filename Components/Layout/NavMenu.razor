@@ -1,3 +1,4 @@
+@* Top navigation header with contextual actions (back, settings, create/import, save). *@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @inject DDCompanion.Services.CharacterStorageService CharacterStorage
@@ -158,7 +159,7 @@
         }
         catch
         {
-            // Пользователь мог закрыть системное окно отправки.
+            // The user may have dismissed the native share sheet.
         }
     }
 

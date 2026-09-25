@@ -1,3 +1,6 @@
+// Loads, saves, imports and deletes characters stored as .ddc JSON files
+// in the app's private Characters folder.
+
 using System.Text;
 using System.Text.Json;
 using DDCompanion.Models;
@@ -49,8 +52,8 @@ public sealed class CharacterStorageService
         if (data is null || !string.Equals(data.Format, "DDC", StringComparison.OrdinalIgnoreCase))
             return null;
 
-        // Старые DDC-файлы не содержали сохранённых модификаторов.
-        // Мигрируем их один раз; новые файлы больше ничего при загрузке не пересчитывают.
+        // Legacy DDC files (version 1) did not persist ability modifiers.
+        // Migrate them once; newer files are never recalculated on load.
         if (data.Version < 2)
         {
             data.Character.Stats.RecalculateModifiers();
@@ -179,7 +182,7 @@ public sealed class CharacterStorageService
         }
         catch
         {
-            // Cache cleanup is best-effort.
+            // Cache cleanup is best-effort; ignore failures.
         }
     }
 
