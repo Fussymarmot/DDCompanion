@@ -137,21 +137,6 @@
 
 
 /* =========================
-   Right-side button pair
-   ========================= */
-
-.header-actions {
-    grid-column: 3;
-
-    justify-self: end;
-
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-
-/* =========================
    Empty right side
    ========================= */
 
@@ -249,10 +234,6 @@
     .app-title,
     .page-title {
         font-size: 17px;
-    }
-
-    .header-actions {
-        gap: 0;
     }
 }
 
