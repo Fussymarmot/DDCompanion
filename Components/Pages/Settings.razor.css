@@ -1,95 +1,388 @@
-/* Settings page: sections, rows and path display. */
+/* Settings page: card-based layout — storage location, .ddc format & contacts. */
 
 .settings-page {
-    width: min(700px, 100%);
+    width: min(640px, 100%);
     margin: 0 auto;
-    padding: 24px 18px 40px;
+    padding: 24px 18px 48px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
 }
 
-.settings-section {
-    padding: 20px;
-    background: #171717;
+/* =========================
+   Card shell
+   ========================= */
+
+.settings-card {
+    position: relative;
+    padding: 22px 20px;
+    background: linear-gradient(180deg, #181818, #141414);
     border: 1px solid #292929;
-    border-radius: 14px;
+    border-radius: 16px;
+    overflow: hidden;
 }
 
-.settings-section h2 {
-    margin: 0 0 14px;
-    color: #fff;
-    font-size: 18px;
-}
-
-.settings-row {
+.settings-card-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid #242424;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.settings-card-icon {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(198, 40, 40, 0.12);
+    border: 1px solid rgba(198, 40, 40, 0.35);
+    color: #ef5350;
+}
+
+.settings-card-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.settings-card h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+}
+
+.settings-card-subtitle {
+    margin: 2px 0 0;
+    color: #888;
+    font-size: 13px;
+}
+
+.settings-card-text {
+    margin: 0 0 16px;
     color: #bdbdbd;
     font-size: 14px;
+    line-height: 2;
 }
 
-.settings-row:last-of-type {
-    border-bottom: 0;
+/* =========================
+   Highlighted words / phrases
+   (inline-block + vertical-align + own line-height so badges
+   never collide with the line above/below when text wraps)
+   ========================= */
+
+.ext-badge,
+.pill,
+.value-badge,
+.field-type {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1.3;
+    margin: 3px 1px;
 }
 
-.settings-row strong {
-    color: #fff;
+.ext-badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(198, 40, 40, 0.15);
+    border: 1px solid rgba(198, 40, 40, 0.4);
+    color: #ff8a80;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12.5px;
+    font-weight: 700;
 }
 
-.settings-row-path {
-    align-items: flex-start;
+.ext-badge-sm {
+    padding: 1px 6px;
+    font-size: 11.5px;
+}
+
+.pill {
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.pill-json {
+    background: rgba(255, 202, 122, 0.12);
+    border: 1px solid rgba(255, 202, 122, 0.35);
+    color: #ffca7a;
+}
+
+.value-badge {
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: #1c1c1c;
+    border: 1px solid #333;
+    color: #ffca7a;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+}
+
+/* =========================
+   Storage path block
+   ========================= */
+
+.settings-path-block {
+    display: flex;
     flex-direction: column;
     gap: 6px;
-}
-
-.settings-row-path code {
-    align-self: stretch;
-}
-
-code {
-    display: block;
-    padding: 8px 10px;
-    border-radius: 6px;
+    padding: 12px 14px;
+    border-radius: 10px;
     background: #101010;
-    border: 1px solid #292929;
-    color: #ef9a9a;
-    font-size: 12px;
+    border: 1px solid #262626;
+    margin-bottom: 16px;
+}
+
+.settings-path-label {
+    color: #777;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.settings-path {
+    display: block;
+    color: #ffca7a;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font-family: Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
     word-break: break-all;
 }
 
-.settings-hint {
-    margin: 14px 0 0;
-    color: #888;
-    font-size: 13px;
-    line-height: 1.5;
+/* =========================
+   Fact list
+   ========================= */
+
+.settings-fact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.settings-hint code {
-    display: inline;
-    padding: 1px 5px;
+.settings-fact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #aaa;
+    font-size: 13.5px;
+    line-height: 1.7;
 }
 
-.settings-button {
-    width: 100%;
-    min-height: 44px;
-    margin-top: 16px;
-    border: 1px solid #444;
-    border-radius: 9px;
-    background: #222;
+.settings-fact-list strong {
     color: #fff;
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.settings-button:hover {
+.fact-dot {
+    flex: 0 0 6px;
+    width: 6px;
+    height: 6px;
+    margin-top: 7px;
+    border-radius: 50%;
     background: #c62828;
-    border-color: #c62828;
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.18);
+}
+
+/* =========================
+   .ddc format structure
+   ========================= */
+
+.format-structure {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 4px 0 16px;
+}
+
+.format-field {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #101010;
+    border: 1px solid #242424;
+    border-left: 3px solid #c62828;
+}
+
+.format-field-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.field-name {
+    color: #fff;
+    font-family: Consolas, monospace;
+    font-weight: 700;
+    font-size: 13.5px;
+}
+
+.field-type {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 7px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.type-string {
+    background: rgba(129, 199, 132, 0.14);
+    color: #81c784;
+    border: 1px solid rgba(129, 199, 132, 0.3);
+}
+
+.type-number {
+    background: rgba(100, 181, 246, 0.14);
+    color: #64b5f6;
+    border: 1px solid rgba(100, 181, 246, 0.3);
+}
+
+.type-object {
+    background: rgba(186, 104, 200, 0.14);
+    color: #ba68c8;
+    border: 1px solid rgba(186, 104, 200, 0.3);
+}
+
+.format-field p {
+    margin: 0;
+    color: #999;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* =========================
+   Hint footer
+   ========================= */
+
+.settings-hint {
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px dashed #262626;
+    color: #888;
+    font-size: 12.5px;
+    line-height: 1.6;
+}
+
+.settings-hint strong {
+    color: #ccc;
+}
+
+/* =========================
+   Contacts card
+   ========================= */
+
+.contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.contact-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #101010;
+    border: 1px solid #242424;
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.contact-link:hover {
+    background: #171717;
+    border-color: #333;
+}
+
+.contact-link:active {
+    transform: scale(0.99);
+}
+
+.contact-link-icon {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+}
+
+.contact-link-icon svg {
+    width: 19px;
+    height: 19px;
+}
+
+.contact-link-icon-github {
+    background: #24292e;
+    border: 1px solid #3a3f45;
+}
+
+.contact-link-icon-telegram {
+    background: #229ed9;
+    border: 1px solid #3db4ea;
+}
+
+.contact-link-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.contact-link-title {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.contact-link-value {
+    color: #888;
+    font-size: 12.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.contact-link-arrow {
+    flex: 0 0 auto;
+    color: #555;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.contact-link-arrow svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+.contact-link:hover .contact-link-arrow {
+    color: #999;
+    transform: translateX(2px);
+}
+
+@media (max-width: 480px) {
+    .settings-page {
+        padding: 18px 14px 40px;
+    }
+
+    .settings-card {
+        padding: 18px 16px;
+    }
 }
