@@ -35,6 +35,8 @@ public static class CharacterOptions
     public static bool AddClass(string value) => Add(ClassesKey, DefaultClasses, value);
     public static void RemoveRace(string value) => Remove(RacesKey, DefaultRaces, value);
     public static void RemoveClass(string value) => Remove(ClassesKey, DefaultClasses, value);
+    public static void ReplaceRaces(IEnumerable<string> values) => Replace(RacesKey, values);
+    public static void ReplaceClasses(IEnumerable<string> values) => Replace(ClassesKey, values);
 
     private static IReadOnlyList<string> Load(string key, string[] defaults)
     {
@@ -82,6 +84,16 @@ public static class CharacterOptions
             .Where(x => !string.Equals(x, value, StringComparison.CurrentCultureIgnoreCase))
             .ToList();
         Save(key, items);
+    }
+
+    private static void Replace(string key, IEnumerable<string> values)
+    {
+        var normalized = values
+            .Select(NormalizeOption)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct(StringComparer.CurrentCultureIgnoreCase)
+            .ToArray();
+        Save(key, normalized);
     }
 
     private static void Save(string key, IEnumerable<string> values) =>

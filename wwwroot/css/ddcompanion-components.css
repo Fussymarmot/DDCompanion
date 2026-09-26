@@ -1544,3 +1544,607 @@
     background: #3a3a3a;
     border-radius: 3px;
 }
+/* Settings page: card-based layout — storage location, .ddc format & contacts. */
+
+.settings-page {
+    width: min(640px, 100%);
+    margin: 0 auto;
+    padding: 24px 18px 48px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* =========================
+   Card shell
+   ========================= */
+
+.settings-card {
+    position: relative;
+    padding: 22px 20px;
+    background: linear-gradient(180deg, #181818, #141414);
+    border: 1px solid #292929;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.settings-card-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.settings-card-icon {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(198, 40, 40, 0.12);
+    border: 1px solid rgba(198, 40, 40, 0.35);
+    color: #ef5350;
+}
+
+.settings-card-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.settings-card h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+}
+
+.settings-card-subtitle {
+    margin: 2px 0 0;
+    color: #888;
+    font-size: 13px;
+}
+
+.settings-card-text {
+    margin: 0 0 16px;
+    color: #bdbdbd;
+    font-size: 14px;
+    line-height: 2;
+}
+
+/* =========================
+   Highlighted words / phrases
+   (inline-block + vertical-align + own line-height so badges
+   never collide with the line above/below when text wraps)
+   ========================= */
+
+.ext-badge,
+.pill,
+.value-badge,
+.field-type {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1.3;
+    margin: 3px 1px;
+}
+
+.ext-badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(198, 40, 40, 0.15);
+    border: 1px solid rgba(198, 40, 40, 0.4);
+    color: #ff8a80;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+.ext-badge-sm {
+    padding: 1px 6px;
+    font-size: 11.5px;
+}
+
+.pill {
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.pill-json {
+    background: rgba(255, 202, 122, 0.12);
+    border: 1px solid rgba(255, 202, 122, 0.35);
+    color: #ffca7a;
+}
+
+.value-badge {
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: #1c1c1c;
+    border: 1px solid #333;
+    color: #ffca7a;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+}
+
+/* =========================
+   Storage path block
+   ========================= */
+
+.settings-path-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #101010;
+    border: 1px solid #262626;
+    margin-bottom: 16px;
+}
+
+.settings-path-label {
+    color: #777;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.settings-path {
+    display: block;
+    color: #ffca7a;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font-family: Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
+    word-break: break-all;
+}
+
+/* =========================
+   Fact list
+   ========================= */
+
+.settings-fact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.settings-fact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #aaa;
+    font-size: 13.5px;
+    line-height: 1.7;
+}
+
+.settings-fact-list strong {
+    color: #fff;
+}
+
+.fact-dot {
+    flex: 0 0 6px;
+    width: 6px;
+    height: 6px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: #c62828;
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.18);
+}
+
+/* =========================
+   .ddc format structure
+   ========================= */
+
+.format-structure {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 4px 0 16px;
+}
+
+.format-field {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #101010;
+    border: 1px solid #242424;
+    border-left: 3px solid #c62828;
+}
+
+.format-field-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.field-name {
+    color: #fff;
+    font-family: Consolas, monospace;
+    font-weight: 700;
+    font-size: 13.5px;
+}
+
+.field-type {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 7px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.type-string {
+    background: rgba(129, 199, 132, 0.14);
+    color: #81c784;
+    border: 1px solid rgba(129, 199, 132, 0.3);
+}
+
+.type-number {
+    background: rgba(100, 181, 246, 0.14);
+    color: #64b5f6;
+    border: 1px solid rgba(100, 181, 246, 0.3);
+}
+
+.type-object {
+    background: rgba(186, 104, 200, 0.14);
+    color: #ba68c8;
+    border: 1px solid rgba(186, 104, 200, 0.3);
+}
+
+.format-field p {
+    margin: 0;
+    color: #999;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* =========================
+   Hint footer
+   ========================= */
+
+.settings-hint {
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px dashed #262626;
+    color: #888;
+    font-size: 12.5px;
+    line-height: 1.6;
+}
+
+.settings-hint strong {
+    color: #ccc;
+}
+
+/* =========================
+   Contacts card
+   ========================= */
+
+.contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.contact-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #101010;
+    border: 1px solid #242424;
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.contact-link:hover {
+    background: #171717;
+    border-color: #333;
+}
+
+.contact-link:active {
+    transform: scale(0.99);
+}
+
+.contact-link-icon {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+}
+
+.contact-link-icon svg {
+    width: 19px;
+    height: 19px;
+}
+
+.contact-link-icon-github {
+    background: #24292e;
+    border: 1px solid #3a3f45;
+}
+
+.contact-link-icon-telegram {
+    background: #229ed9;
+    border: 1px solid #3db4ea;
+}
+
+.contact-link-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.contact-link-title {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.contact-link-value {
+    color: #888;
+    font-size: 12.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.contact-link-arrow {
+    flex: 0 0 auto;
+    color: #555;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.contact-link-arrow svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+.contact-link:hover .contact-link-arrow {
+    color: #999;
+    transform: translateX(2px);
+}
+
+@media (max-width: 480px) {
+    .settings-page {
+        padding: 18px 14px 40px;
+    }
+
+    .settings-card {
+        padding: 18px 16px;
+    }
+}
+
+/* =========================
+   Editable race/class suggestions
+   ========================= */
+.options-description {
+    margin-bottom: 12px;
+}
+
+.option-add-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.option-input {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border-radius: 10px;
+    border: 1px solid #303030;
+    outline: none;
+    background: #101010;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.option-input::placeholder { color: #666; }
+.option-input:focus {
+    background: #121212;
+    border-color: #b92a2a;
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, .12);
+}
+
+.option-add-button {
+    padding: 0 16px;
+    border: 1px solid #b52a2a;
+    border-radius: 10px;
+    background: #c62828;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color .15s ease, transform .15s ease, opacity .15s ease;
+}
+.option-add-button:hover:not(:disabled) { background: #d32f2f; }
+.option-add-button:active:not(:disabled) { transform: scale(.98); }
+.option-add-button:disabled { opacity: .38; cursor: default; }
+
+.option-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.option-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 32px;
+    padding: 0 5px 0 11px;
+    border: 1px solid #2d2d2d;
+    border-radius: 9px;
+    background: #101010;
+    color: #d7d7d7;
+    font-size: 13px;
+}
+
+.option-chip button {
+    width: 23px;
+    height: 23px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #777;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color .15s ease, background-color .15s ease;
+}
+.option-chip button:hover { color: #ef5350; background: rgba(198, 40, 40, .14); }
+
+@media (max-width: 480px) {
+    .option-add-row { grid-template-columns: 1fr; }
+    .option-add-button { min-height: 42px; }
+}
+
+/* =========================
+   Settings export / import
+   ========================= */
+.icon-transfer {
+    color: #ffca7a;
+    background: rgba(255, 202, 122, .09);
+    border-color: rgba(255, 202, 122, .22);
+}
+
+.transfer-description { margin-bottom: 14px; }
+
+.settings-transfer-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.settings-transfer-button {
+    min-width: 0;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 13px;
+    border: 1px solid #2b2b2b;
+    border-radius: 11px;
+    background: #101010;
+    color: #fff;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.settings-transfer-button:hover {
+    background: #171717;
+    border-color: #3a3a3a;
+}
+
+.settings-transfer-button:active { transform: scale(.985); }
+
+.settings-transfer-button.transfer-primary {
+    border-color: rgba(198, 40, 40, .55);
+    background: rgba(198, 40, 40, .09);
+}
+
+.settings-transfer-button.transfer-primary:hover {
+    border-color: #c62828;
+    background: rgba(198, 40, 40, .15);
+}
+
+.transfer-button-icon {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #1d1d1d;
+    color: #ffca7a;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.settings-transfer-button.transfer-primary .transfer-button-icon {
+    background: rgba(198, 40, 40, .2);
+    color: #ff8a80;
+}
+
+.settings-transfer-button > span:last-child {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.settings-transfer-button strong {
+    color: #eee;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.settings-transfer-button small {
+    color: #777;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.settings-transfer-message {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.settings-transfer-message.is-success {
+    color: #9ad7a0;
+    background: rgba(76, 175, 80, .09);
+    border: 1px solid rgba(76, 175, 80, .25);
+}
+
+.settings-transfer-message.is-error {
+    color: #ff8a80;
+    background: rgba(198, 40, 40, .09);
+    border: 1px solid rgba(198, 40, 40, .3);
+}
+
+@media (max-width: 720px) {
+    .settings-transfer-actions { grid-template-columns: 1fr; }
+    .settings-transfer-button { min-height: 62px; }
+}
+
+/* Settings: duplicate option notice */
+
+.option-add-notice {
+    margin-top: 7px;
+    padding-left: 2px;
+    color: #ff8a80;
+    font-size: 11.5px;
+    line-height: 1.35;
+}

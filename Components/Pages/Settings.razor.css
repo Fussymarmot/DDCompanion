@@ -479,3 +479,124 @@
     .option-add-row { grid-template-columns: 1fr; }
     .option-add-button { min-height: 42px; }
 }
+
+/* =========================
+   Settings export / import
+   ========================= */
+.icon-transfer {
+    color: #ffca7a;
+    background: rgba(255, 202, 122, .09);
+    border-color: rgba(255, 202, 122, .22);
+}
+
+.transfer-description { margin-bottom: 14px; }
+
+.settings-transfer-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.settings-transfer-button {
+    min-width: 0;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 13px;
+    border: 1px solid #2b2b2b;
+    border-radius: 11px;
+    background: #101010;
+    color: #fff;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.settings-transfer-button:hover {
+    background: #171717;
+    border-color: #3a3a3a;
+}
+
+.settings-transfer-button:active { transform: scale(.985); }
+
+.settings-transfer-button.transfer-primary {
+    border-color: rgba(198, 40, 40, .55);
+    background: rgba(198, 40, 40, .09);
+}
+
+.settings-transfer-button.transfer-primary:hover {
+    border-color: #c62828;
+    background: rgba(198, 40, 40, .15);
+}
+
+.transfer-button-icon {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #1d1d1d;
+    color: #ffca7a;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.settings-transfer-button.transfer-primary .transfer-button-icon {
+    background: rgba(198, 40, 40, .2);
+    color: #ff8a80;
+}
+
+.settings-transfer-button > span:last-child {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.settings-transfer-button strong {
+    color: #eee;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.settings-transfer-button small {
+    color: #777;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.settings-transfer-message {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.settings-transfer-message.is-success {
+    color: #9ad7a0;
+    background: rgba(76, 175, 80, .09);
+    border: 1px solid rgba(76, 175, 80, .25);
+}
+
+.settings-transfer-message.is-error {
+    color: #ff8a80;
+    background: rgba(198, 40, 40, .09);
+    border: 1px solid rgba(198, 40, 40, .3);
+}
+
+@media (max-width: 720px) {
+    .settings-transfer-actions { grid-template-columns: 1fr; }
+    .settings-transfer-button { min-height: 62px; }
+}
+
+.option-add-notice {
+    margin-top: 7px;
+    padding-left: 2px;
+    color: #ff8a80;
+    font-size: 11.5px;
+    line-height: 1.35;
+}

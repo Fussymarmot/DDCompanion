@@ -3,11 +3,12 @@
 @using DDCompanion.Services
 @using DDCompanion.Models
 @inject CharacterStorageService CharacterStorage
+@inject SettingsTransferService SettingsTransfer
 
 <PageTitle>Настройки</PageTitle>
 
 <div class="settings-page">
-    
+
     <section class="settings-card">
         <div class="settings-card-head">
             <div class="settings-card-icon icon-options">
@@ -20,9 +21,13 @@
         </div>
         <p class="settings-card-text options-description">Настройте список рас под свою кампанию. Поле остаётся свободным — в него по-прежнему можно вписать любой текст.</p>
         <div class="option-add-row">
-            <input class="option-input" @bind="NewRace" @bind:event="oninput" @onkeydown="HandleRaceKey" placeholder="Новая раса"/>
+            <input class="option-input" @bind="NewRace" @bind:event="oninput" @onkeydown="HandleRaceKey" placeholder="Новая раса" />
             <button class="option-add-button" type="button" @onclick="AddRace" disabled="@string.IsNullOrWhiteSpace(NewRace)">Добавить</button>
         </div>
+        @if (!string.IsNullOrWhiteSpace(RaceAddMessage))
+        {
+            <div class="option-add-notice">@RaceAddMessage</div>
+        }
         <div class="option-chips">
             @foreach (var item in Races)
             {
@@ -30,7 +35,7 @@
             }
         </div>
     </section>
-
+    
     <section class="settings-card">
         <div class="settings-card-head">
             <div class="settings-card-icon icon-options">
@@ -43,9 +48,13 @@
         </div>
         <p class="settings-card-text options-description">Добавляйте свои классы или удаляйте ненужные. Изменения сразу применяются в создании и редактировании персонажа.</p>
         <div class="option-add-row">
-            <input class="option-input" @bind="NewClass" @bind:event="oninput" @onkeydown="HandleClassKey" placeholder="Новый класс"/>
+            <input class="option-input" @bind="NewClass" @bind:event="oninput" @onkeydown="HandleClassKey" placeholder="Новый класс" />
             <button class="option-add-button" type="button" @onclick="AddClass" disabled="@string.IsNullOrWhiteSpace(NewClass)">Добавить</button>
         </div>
+        @if (!string.IsNullOrWhiteSpace(ClassAddMessage))
+        {
+            <div class="option-add-notice">@ClassAddMessage</div>
+        }
         <div class="option-chips">
             @foreach (var item in Classes)
             {
@@ -54,6 +63,41 @@
         </div>
     </section>
 
+    <section class="settings-card settings-transfer-card">
+        <div class="settings-card-head">
+            <div class="settings-card-icon icon-transfer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="currentColor" d="M320 64C337.7 64 352 78.3 352 96L352 274.7L401.4 225.3C413.9 212.8 434.2 212.8 446.7 225.3C459.2 237.8 459.2 258.1 446.7 270.6L342.7 374.6C330.2 387.1 309.9 387.1 297.4 374.6L193.4 270.6C180.9 258.1 180.9 237.8 193.4 225.3C205.9 212.8 226.2 212.8 238.7 225.3L288 274.7L288 96C288 78.3 302.3 64 320 64zM128 352C145.7 352 160 366.3 160 384L160 480C160 497.7 174.3 512 192 512L448 512C465.7 512 480 497.7 480 480L480 384C480 366.3 494.3 352 512 352C529.7 352 544 366.3 544 384L544 480C544 533 501 576 448 576L192 576C139 576 96 533 96 480L96 384C96 366.3 110.3 352 128 352z"/></svg>
+            </div>
+            <div>
+                <h2>Экспорт и импорт настроек</h2>
+                <p class="settings-card-subtitle">Перенос настроек на другое устройство</p>
+            </div>
+        </div>
+
+        <p class="settings-card-text transfer-description">
+            Сохраните списки классов и рас в файл <span class="ext-badge">.ddcs</span>, отправьте его другому человеку или импортируйте полученный файл.
+        </p>
+
+        <div class="settings-transfer-actions">
+            <button class="settings-transfer-button transfer-primary" type="button" @onclick="ExportSettings">
+                <span class="transfer-button-icon">↥</span>
+                <span><strong>Экспортировать</strong><small>Сохранить файл настроек</small></span>
+            </button>
+            <button class="settings-transfer-button" type="button" @onclick="ImportSettings">
+                <span class="transfer-button-icon">↧</span>
+                <span><strong>Импортировать</strong><small>Загрузить настройки из файла</small></span>
+            </button>
+            <button class="settings-transfer-button" type="button" @onclick="ShareSettings">
+                <span class="transfer-button-icon">↗</span>
+                <span><strong>Поделиться</strong><small>Отправить настройки другому человеку</small></span>
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(SettingsMessage))
+        {
+            <div class="settings-transfer-message @(SettingsError ? "is-error" : "is-success")">@SettingsMessage</div>
+        }
+    </section>
 
     <section class="settings-card">
         <div class="settings-card-head">
@@ -179,18 +223,42 @@
 @code {
     private string NewClass { get; set; } = string.Empty;
     private string NewRace { get; set; } = string.Empty;
+    private string? ClassAddMessage { get; set; }
+    private string? RaceAddMessage { get; set; }
+    private string? SettingsMessage { get; set; }
+    private bool SettingsError { get; set; }
     private IReadOnlyList<string> Classes => CharacterOptions.Classes;
     private IReadOnlyList<string> Races => CharacterOptions.Races;
     private string CharactersDirectory => CharacterStorage.GetCharactersDirectory();
 
     private void AddClass()
     {
-        if (CharacterOptions.AddClass(NewClass)) NewClass = string.Empty;
+        if (string.IsNullOrWhiteSpace(NewClass)) return;
+
+        if (CharacterOptions.AddClass(NewClass))
+        {
+            NewClass = string.Empty;
+            ClassAddMessage = null;
+        }
+        else
+        {
+            ClassAddMessage = "Такой класс уже есть в подсказках.";
+        }
     }
 
     private void AddRace()
     {
-        if (CharacterOptions.AddRace(NewRace)) NewRace = string.Empty;
+        if (string.IsNullOrWhiteSpace(NewRace)) return;
+
+        if (CharacterOptions.AddRace(NewRace))
+        {
+            NewRace = string.Empty;
+            RaceAddMessage = null;
+        }
+        else
+        {
+            RaceAddMessage = "Такая раса уже есть в подсказках.";
+        }
     }
 
     private void RemoveClass(string value) => CharacterOptions.RemoveClass(value);
@@ -204,6 +272,75 @@
     private void HandleRaceKey(KeyboardEventArgs e)
     {
         if (e.Key == "Enter") AddRace();
+    }
+
+
+    private async Task ExportSettings()
+    {
+        SettingsMessage = null;
+        SettingsError = false;
+        try
+        {
+            var path = await SettingsTransfer.ExportAsync();
+            if (!string.IsNullOrWhiteSpace(path))
+                SettingsMessage = "Настройки сохранены в выбранное место.";
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            SettingsError = true;
+            SettingsMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            SettingsError = true;
+            SettingsMessage = $"Не удалось экспортировать настройки: {ex.Message}";
+        }
+    }
+
+    private async Task ShareSettings()
+    {
+        SettingsMessage = null;
+        SettingsError = false;
+        try
+        {
+            await SettingsTransfer.ShareAsync("Поделиться настройками D&D Companion");
+        }
+        catch
+        {
+            // The user may have dismissed the native share sheet.
+        }
+    }
+
+    private async Task ImportSettings()
+    {
+        SettingsMessage = null;
+        SettingsError = false;
+
+        try
+        {
+            var file = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Выберите файл настроек D&D Companion",
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    [DevicePlatform.Android] = new[] { "application/json", "application/octet-stream", "*/*" },
+                    [DevicePlatform.WinUI] = new[] { ".ddcs", ".json" },
+                    [DevicePlatform.MacCatalyst] = new[] { "ddcs", "json" },
+                    [DevicePlatform.iOS] = new[] { "ddcs", "json" }
+                })
+            });
+
+            if (file is null) return;
+
+            await using var stream = await file.OpenReadAsync();
+            await SettingsTransfer.ImportAsync(stream);
+            SettingsMessage = "Настройки импортированы. Списки классов и рас обновлены.";
+        }
+        catch (Exception ex)
+        {
+            SettingsError = true;
+            SettingsMessage = $"Не удалось импортировать настройки: {ex.Message}";
+        }
     }
 
     private async Task OpenLink(string url)

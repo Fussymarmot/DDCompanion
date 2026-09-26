@@ -36,6 +36,76 @@ namespace DDCompanion;
     DataMimeTypes = new[] { "application/octet-stream", "*/*" })]
 public class MainActivity : MauiAppCompatActivity
 {
+    private const int CreateDocumentRequestCode = 42001;
+    private static TaskCompletionSource<string?>? _createDocumentTcs;
+    private static byte[]? _createDocumentData;
+
+    public static async Task<string?> SaveFileAsync(byte[] data, string fileName, string mimeType)
+    {
+        if (Microsoft.Maui.ApplicationModel.Platform.CurrentActivity is not MainActivity activity)
+            throw new InvalidOperationException("Активное окно приложения недоступно.");
+
+        if (_createDocumentTcs is not null)
+            throw new InvalidOperationException("Операция сохранения уже выполняется.");
+
+        _createDocumentData = data;
+        _createDocumentTcs = new TaskCompletionSource<string?>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var intent = new Intent(Intent.ActionCreateDocument);
+        intent.AddCategory(Intent.CategoryOpenable);
+        intent.SetType(mimeType);
+        intent.PutExtra(Intent.ExtraTitle, fileName);
+
+        activity.StartActivityForResult(intent, CreateDocumentRequestCode);
+
+        try
+        {
+            return await _createDocumentTcs.Task;
+        }
+        finally
+        {
+            _createDocumentData = null;
+            _createDocumentTcs = null;
+        }
+    }
+
+    protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
+    {
+        base.OnActivityResult(requestCode, resultCode, data);
+
+        if (requestCode != CreateDocumentRequestCode)
+            return;
+
+        if (resultCode != Result.Ok || data?.Data is null)
+        {
+            _createDocumentTcs?.TrySetResult(null);
+            return;
+        }
+
+        var uri = data.Data;
+        try
+        {
+            var resolver = ContentResolver;
+            using var output = resolver.OpenOutputStream(uri);
+
+            if (output is null)
+                throw new IOException("Не удалось открыть выбранный файл для записи.");
+
+            if (_createDocumentData is null)
+                throw new IOException("Данные для экспорта отсутствуют.");
+
+            output.Write(_createDocumentData, 0, _createDocumentData.Length);
+            output.Flush();
+
+            _createDocumentTcs?.TrySetResult(uri.ToString());
+        }
+        catch (Exception ex)
+        {
+            _createDocumentTcs?.TrySetException(ex);
+        }
+    }
+
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
