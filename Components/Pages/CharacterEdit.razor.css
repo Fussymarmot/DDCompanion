@@ -89,6 +89,14 @@ label {
     color: #bdbdbd;
     font-size: 13px;
     font-weight: 600;
+    /* Fixed line-height so the caption's box height stays identical for every
+       label regardless of which letters it contains. Without this, "normal"
+       line-height is derived from whichever font actually renders each glyph;
+       some Cyrillic letters (e.g. "ж") aren't covered by the Latin fonts in
+       the stack below and silently fall back to a different font with taller
+       metrics, which shrank the visible gap above the input for words like
+       "Телосложение" and "Оружие". */
+    line-height: 1.3;
 }
 
 .input {

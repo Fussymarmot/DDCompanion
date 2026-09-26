@@ -483,6 +483,14 @@
     color: #bdbdbd;
     font-size: 13px;
     font-weight: 600;
+    /* Fixed line-height so the caption's box height stays identical for every
+       label regardless of which letters it contains. Without this, "normal"
+       line-height is derived from whichever font actually renders each glyph;
+       some Cyrillic letters (e.g. "ж") aren't covered by the Latin fonts in
+       the stack below and silently fall back to a different font with taller
+       metrics, which shrank the visible gap above the input for words like
+       "Телосложение" and "Оружие". */
+    line-height: 1.3;
 }
 
 .input {
@@ -620,6 +628,14 @@
     color: #bdbdbd;
     font-size: 13px;
     font-weight: 600;
+    /* Fixed line-height so the caption's box height stays identical for every
+       label regardless of which letters it contains. Without this, "normal"
+       line-height is derived from whichever font actually renders each glyph;
+       some Cyrillic letters (e.g. "ж") aren't covered by the Latin fonts in
+       the stack below and silently fall back to a different font with taller
+       metrics, which shrank the visible gap above the input for words like
+       "Телосложение" and "Оружие". */
+    line-height: 1.3;
 }
 
 .input {
@@ -1356,4 +1372,175 @@
     .settings-card {
         padding: 18px 16px;
     }
+}
+
+/* =========================
+   Editable race/class suggestions
+   ========================= */
+.options-description {
+    margin-bottom: 12px;
+}
+
+.option-add-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.option-input {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border-radius: 10px;
+    border: 1px solid #303030;
+    outline: none;
+    background: #101010;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.option-input::placeholder { color: #666; }
+.option-input:focus {
+    background: #121212;
+    border-color: #b92a2a;
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, .12);
+}
+
+.option-add-button {
+    padding: 0 16px;
+    border: 1px solid #b52a2a;
+    border-radius: 10px;
+    background: #c62828;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color .15s ease, transform .15s ease, opacity .15s ease;
+}
+.option-add-button:hover:not(:disabled) { background: #d32f2f; }
+.option-add-button:active:not(:disabled) { transform: scale(.98); }
+.option-add-button:disabled { opacity: .38; cursor: default; }
+
+.option-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.option-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 32px;
+    padding: 0 5px 0 11px;
+    border: 1px solid #2d2d2d;
+    border-radius: 9px;
+    background: #101010;
+    color: #d7d7d7;
+    font-size: 13px;
+}
+
+.option-chip button {
+    width: 23px;
+    height: 23px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #777;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color .15s ease, background-color .15s ease;
+}
+.option-chip button:hover { color: #ef5350; background: rgba(198, 40, 40, .14); }
+
+@media (max-width: 480px) {
+    .option-add-row { grid-template-columns: 1fr; }
+    .option-add-button { min-height: 42px; }
+}
+
+/* ==========================================
+   SuggestInput component (duplicated from
+   Components/Shared/SuggestInput.razor.css as a
+   fallback so it applies even if the scoped
+   stylesheet is stale/not bundled in BlazorWebView)
+   ========================================== */
+/* Free-text input with a floating, styled autocomplete dropdown. */
+
+.suggest-input {
+    position: relative;
+}
+
+.suggest-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    max-height: 220px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background: #171717;
+    border: 1px solid #2f2f2f;
+    border-radius: 12px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
+    animation: suggest-in 0.12s ease-out;
+}
+
+@keyframes suggest-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.suggest-list li {
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #ddd;
+    font-size: 14px;
+    line-height: 1.3;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggest-list li:hover,
+.suggest-list li:active {
+    background: #262626;
+    color: #fff;
+}
+
+.suggest-match {
+    color: #ef5350;
+    font-weight: 700;
+}
+
+.suggest-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.suggest-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.suggest-list::-webkit-scrollbar-thumb {
+    background: #3a3a3a;
+    border-radius: 3px;
 }

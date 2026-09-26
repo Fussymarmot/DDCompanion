@@ -1,11 +1,59 @@
 @* Settings page: where character files live and how the .ddc format works. *@
 @page "/settings"
 @using DDCompanion.Services
+@using DDCompanion.Models
 @inject CharacterStorageService CharacterStorage
 
 <PageTitle>Настройки</PageTitle>
 
 <div class="settings-page">
+    
+    <section class="settings-card">
+        <div class="settings-card-head">
+            <div class="settings-card-icon icon-options">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="currentColor" d="M320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64zM256 142.9C238.5 185.4 227.4 234.6 224.7 288L128.8 288C141.5 221.7 190.5 167.7 256 142.9zM128.8 352L224.7 352C227.4 405.4 238.5 454.6 256 497.1C190.5 472.3 141.5 418.3 128.8 352zM288.8 497.7C269.4 456.4 256.8 406.4 253.7 352L386.3 352C383.2 406.4 370.6 456.4 351.2 497.7C341.6 518.1 329.9 532.4 320 539.8C310.1 532.4 298.4 518.1 288.8 497.7zM386.3 288L253.7 288C256.8 233.6 269.4 183.6 288.8 142.3C298.4 121.9 310.1 107.6 320 100.2C329.9 107.6 341.6 121.9 351.2 142.3C370.6 183.6 383.2 233.6 386.3 288zM384 497.1C401.5 454.6 412.6 405.4 415.3 352L511.2 352C498.5 418.3 449.5 472.3 384 497.1zM415.3 288C412.6 234.6 401.5 185.4 384 142.9C449.5 167.7 498.5 221.7 511.2 288L415.3 288z"/></svg>
+            </div>
+            <div>
+                <h2>Подсказки рас</h2>
+                <p class="settings-card-subtitle">Список вариантов для поля «Раса»</p>
+            </div>
+        </div>
+        <p class="settings-card-text options-description">Настройте список рас под свою кампанию. Поле остаётся свободным — в него по-прежнему можно вписать любой текст.</p>
+        <div class="option-add-row">
+            <input class="option-input" @bind="NewRace" @bind:event="oninput" @onkeydown="HandleRaceKey" placeholder="Новая раса"/>
+            <button class="option-add-button" type="button" @onclick="AddRace" disabled="@string.IsNullOrWhiteSpace(NewRace)">Добавить</button>
+        </div>
+        <div class="option-chips">
+            @foreach (var item in Races)
+            {
+                <span class="option-chip"><span>@item</span><button type="button" title="Удалить @item" aria-label="Удалить @item" @onclick="() => RemoveRace(item)">×</button></span>
+            }
+        </div>
+    </section>
+
+    <section class="settings-card">
+        <div class="settings-card-head">
+            <div class="settings-card-icon icon-options">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="currentColor" d="M160 128C160 110.3 174.3 96 192 96L448 96C465.7 96 480 110.3 480 128C480 145.7 465.7 160 448 160L192 160C174.3 160 160 145.7 160 128zM96 320C96 302.3 110.3 288 128 288L512 288C529.7 288 544 302.3 544 320C544 337.7 529.7 352 512 352L128 352C110.3 352 96 337.7 96 320zM192 480C192 462.3 206.3 448 224 448L416 448C433.7 448 448 462.3 448 480C448 497.7 433.7 512 416 512L224 512C206.3 512 192 497.7 192 480z"/></svg>
+            </div>
+            <div>
+                <h2>Подсказки классов</h2>
+                <p class="settings-card-subtitle">Список вариантов для поля «Класс»</p>
+            </div>
+        </div>
+        <p class="settings-card-text options-description">Добавляйте свои классы или удаляйте ненужные. Изменения сразу применяются в создании и редактировании персонажа.</p>
+        <div class="option-add-row">
+            <input class="option-input" @bind="NewClass" @bind:event="oninput" @onkeydown="HandleClassKey" placeholder="Новый класс"/>
+            <button class="option-add-button" type="button" @onclick="AddClass" disabled="@string.IsNullOrWhiteSpace(NewClass)">Добавить</button>
+        </div>
+        <div class="option-chips">
+            @foreach (var item in Classes)
+            {
+                <span class="option-chip"><span>@item</span><button type="button" title="Удалить @item" aria-label="Удалить @item" @onclick="() => RemoveClass(item)">×</button></span>
+            }
+        </div>
+    </section>
+
 
     <section class="settings-card">
         <div class="settings-card-head">
@@ -129,7 +177,34 @@
 </div>
 
 @code {
+    private string NewClass { get; set; } = string.Empty;
+    private string NewRace { get; set; } = string.Empty;
+    private IReadOnlyList<string> Classes => CharacterOptions.Classes;
+    private IReadOnlyList<string> Races => CharacterOptions.Races;
     private string CharactersDirectory => CharacterStorage.GetCharactersDirectory();
+
+    private void AddClass()
+    {
+        if (CharacterOptions.AddClass(NewClass)) NewClass = string.Empty;
+    }
+
+    private void AddRace()
+    {
+        if (CharacterOptions.AddRace(NewRace)) NewRace = string.Empty;
+    }
+
+    private void RemoveClass(string value) => CharacterOptions.RemoveClass(value);
+    private void RemoveRace(string value) => CharacterOptions.RemoveRace(value);
+
+    private void HandleClassKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddClass();
+    }
+
+    private void HandleRaceKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddRace();
+    }
 
     private async Task OpenLink(string url)
     {

@@ -386,3 +386,96 @@
         padding: 18px 16px;
     }
 }
+
+/* =========================
+   Editable race/class suggestions
+   ========================= */
+.options-description {
+    margin-bottom: 12px;
+}
+
+.option-add-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.option-input {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border-radius: 10px;
+    border: 1px solid #303030;
+    outline: none;
+    background: #101010;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.option-input::placeholder { color: #666; }
+.option-input:focus {
+    background: #121212;
+    border-color: #b92a2a;
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, .12);
+}
+
+.option-add-button {
+    padding: 0 16px;
+    border: 1px solid #b52a2a;
+    border-radius: 10px;
+    background: #c62828;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color .15s ease, transform .15s ease, opacity .15s ease;
+}
+.option-add-button:hover:not(:disabled) { background: #d32f2f; }
+.option-add-button:active:not(:disabled) { transform: scale(.98); }
+.option-add-button:disabled { opacity: .38; cursor: default; }
+
+.option-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.option-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 32px;
+    padding: 0 5px 0 11px;
+    border: 1px solid #2d2d2d;
+    border-radius: 9px;
+    background: #101010;
+    color: #d7d7d7;
+    font-size: 13px;
+}
+
+.option-chip button {
+    width: 23px;
+    height: 23px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #777;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color .15s ease, background-color .15s ease;
+}
+.option-chip button:hover { color: #ef5350; background: rgba(198, 40, 40, .14); }
+
+@media (max-width: 480px) {
+    .option-add-row { grid-template-columns: 1fr; }
+    .option-add-button { min-height: 42px; }
+}

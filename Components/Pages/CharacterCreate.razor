@@ -29,8 +29,8 @@
             <div class="identity">
                 <label>Имя персонажа<InputText @bind-Value="Character.Name" class="input" placeholder="Например, Элира" /></label>
                 <div class="two-columns">
-                    <label>Раса<InputText @bind-Value="Character.Species" class="input" placeholder="Человек" /></label>
-                    <label>Класс<InputText @bind-Value="Character.Class" class="input" placeholder="Воин" /></label>
+                    <label>Раса<SuggestInput @bind-Value="Character.Species" Suggestions="CharacterOptions.Races" Placeholder="Человек" /></label>
+                    <label>Класс<SuggestInput @bind-Value="Character.Class" Suggestions="CharacterOptions.Classes" Placeholder="Воин" /></label>
                 </div>
             </div>
         </section>

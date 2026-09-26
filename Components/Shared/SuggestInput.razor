@@ -1,0 +1,93 @@
+@* A plain text input with a floating suggestion dropdown underneath it.
+   Suggestions are just a starting point: the user can always type
+   whatever they want, the list only offers quick picks. *@
+@using System.Linq
+@using System.Net
+
+<div class="suggest-input" @onfocusout="HandleFocusOut">
+    <input class="input"
+           value="@Value"
+           placeholder="@Placeholder"
+           autocomplete="off"
+           spellcheck="false"
+           @oninput="OnInput"
+           @onfocus="OnFocus" />
+
+    @if (isOpen && filtered.Count > 0)
+    {
+        <ul class="suggest-list">
+            @foreach (var item in filtered)
+            {
+                <li @onmousedown="() => Select(item)" @onmousedown:preventDefault="true">
+                    @Highlight(item)
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public IReadOnlyList<string> Suggestions { get; set; } = Array.Empty<string>();
+    [Parameter] public string? Placeholder { get; set; }
+
+    private bool isOpen;
+    private List<string> filtered = new();
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        Value = e.Value?.ToString();
+        await ValueChanged.InvokeAsync(Value);
+        Refresh();
+        isOpen = true;
+    }
+
+    private void OnFocus()
+    {
+        Refresh();
+        isOpen = true;
+    }
+
+    private async Task HandleFocusOut()
+    {
+        // Selecting a suggestion happens on mousedown (with preventDefault), so by
+        // the time a real focusout fires the click has already been handled. This
+        // delay just protects against browsers ordering the events differently.
+        await Task.Delay(120);
+        isOpen = false;
+    }
+
+    private async Task Select(string item)
+    {
+        Value = item;
+        await ValueChanged.InvokeAsync(Value);
+        isOpen = false;
+    }
+
+    private void Refresh()
+    {
+        var query = Value?.Trim() ?? "";
+        filtered = string.IsNullOrEmpty(query)
+            ? Suggestions.ToList()
+            : Suggestions.Where(s => s.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    private MarkupString Highlight(string item)
+    {
+        var query = Value?.Trim() ?? "";
+        var index = string.IsNullOrEmpty(query)
+            ? -1
+            : item.IndexOf(query, StringComparison.OrdinalIgnoreCase);
+
+        if (index < 0)
+        {
+            return new MarkupString(WebUtility.HtmlEncode(item));
+        }
+
+        var before = WebUtility.HtmlEncode(item[..index]);
+        var match = WebUtility.HtmlEncode(item.Substring(index, query.Length));
+        var after = WebUtility.HtmlEncode(item[(index + query.Length)..]);
+        return new MarkupString($"{before}<span class=\"suggest-match\">{match}</span>{after}");
+    }
+}
