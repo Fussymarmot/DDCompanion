@@ -28,5 +28,11 @@
     </array>
     <key>XSAppIconAssets</key>
     <string>Assets.xcassets/appicon.appiconset</string>
+    <!-- Required because CharacterCreate/CharacterEdit call MediaPicker.PickPhotoAsync
+         to choose a character avatar. Without this key iOS terminates the app the
+         first time photo library access is checked, and App Store review rejects
+         the binary outright. -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Доступ к фотографиям нужен, чтобы выбрать изображение для аватара персонажа.</string>
 </dict>
 </plist>
