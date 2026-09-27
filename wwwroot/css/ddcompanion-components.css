@@ -1924,41 +1924,77 @@ label {
 .option-add-button:active:not(:disabled) { transform: scale(.98); }
 .option-add-button:disabled { opacity: .38; cursor: default; }
 
+.option-list-toggle {
+    width: 100%;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 2px;
+    padding: 8px 11px;
+    border: 1px solid var(--dd-border);
+    border-radius: 9px;
+    background: var(--dd-bg);
+    color: var(--dd-secondary-text);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.option-list-toggle:hover {
+    background: var(--dd-surface);
+    border-color: var(--dd-border-strong);
+    color: var(--dd-text);
+}
+
+.option-list-toggle-icon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    transition: transform .18s ease;
+}
+
+.option-list-toggle-icon.is-open {
+    transform: rotate(180deg);
+}
+
 .option-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-top: 10px;
 }
 
 .option-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
     min-height: 32px;
-    padding: 0 5px 0 11px;
+    padding: 0 12px;
     border: 1px solid var(--dd-border);
     border-radius: 9px;
     background: var(--dd-bg);
     color: var(--dd-chip-text);
+    font: inherit;
     font-size: 13px;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .15s ease;
 }
 
-.option-chip button {
-    width: 23px;
-    height: 23px;
-    padding: 0;
-    display: grid;
-    place-items: center;
-    border: 0;
-    border-radius: 7px;
-    background: transparent;
-    color: var(--dd-muted);
-    font-size: 18px;
-    line-height: 1;
-    cursor: pointer;
-    transition: color .15s ease, background-color .15s ease;
+.option-chip:active {
+    transform: scale(.97);
 }
-.option-chip button:hover { color: #ef5350; background: rgba(198, 40, 40, .14); }
+
+.option-chip.is-delete-mode {
+    border-color: rgba(198, 40, 40, .7);
+    background: rgba(198, 40, 40, .13);
+    color: #ef5350;
+    font-weight: 700;
+}
 
 @media (max-width: 480px) {
     .option-add-row { grid-template-columns: 1fr; }

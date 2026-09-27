@@ -5,6 +5,7 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 @inject ThemeService ThemeService
+@inject ExternalImportService ExternalImport
 
 <div class="app @(ThemeService.IsLightTheme ? "theme-light" : "theme-dark")">
     <NavMenu />
@@ -19,18 +20,42 @@
     protected override void OnInitialized()
     {
         ThemeService.ThemeChanged += OnThemeChanged;
+        PendingFileImport.Requested += OnExternalImportRequested;
     }
 
     private void OnThemeChanged() => InvokeAsync(StateHasChanged);
 
+    private void OnExternalImportRequested() => _ = InvokeAsync(HandleExternalImportAsync);
+
+    private async Task HandleExternalImportAsync()
+    {
+        var result = await ExternalImport.ImportPendingAsync();
+        if (result is null)
+            return;
+
+        if (result.IsCharacter && result.Character is not null)
+        {
+            var fileName = result.Character.StorageFileName ?? $"{result.Character.Name}.ddc";
+            Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(fileName)}");
+        }
+        else if (result.IsSettings)
+        {
+            Navigation.NavigateTo("/settings");
+        }
+    }
+
     public void Dispose()
     {
         ThemeService.ThemeChanged -= OnThemeChanged;
+        PendingFileImport.Requested -= OnExternalImportRequested;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
+        {
             await JS.InvokeVoidAsync("blazorReady");
+            await HandleExternalImportAsync();
+        }
     }
 }

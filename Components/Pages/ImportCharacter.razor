@@ -53,7 +53,8 @@
                 return;
             }
 
-            Navigation.NavigateTo("/");
+            var fileName = character.StorageFileName ?? $"{character.Name}.ddc";
+            Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(fileName)}");
         }
         catch (CharacterStorageService.CharacterAlreadyExistsException ex)
         {

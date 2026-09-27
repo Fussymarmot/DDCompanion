@@ -172,8 +172,9 @@ public class MainActivity : MauiAppCompatActivity
                 input.CopyTo(output);
             }
 
-            Preferences.Default.Set("pending_ddc_path", pendingPath);
-            Preferences.Default.Remove("pending_ddc_uri");
+            Preferences.Default.Set("pending_import_path", pendingPath);
+            Preferences.Default.Remove("pending_import_uri");
+            Services.PendingFileImport.NotifyRequested();
 
         }
         catch
@@ -181,8 +182,9 @@ public class MainActivity : MauiAppCompatActivity
             // A content URI may only be accessible through a temporary Android grant.
             // Fall back to storing the URI and opening it from inside the app.
             var uriString = uri.ToString();
-            Preferences.Default.Set("pending_ddc_uri", uriString);
-            Preferences.Default.Remove("pending_ddc_path");
+            Preferences.Default.Set("pending_import_uri", uriString);
+            Preferences.Default.Remove("pending_import_path");
+            Services.PendingFileImport.NotifyRequested();
         }
     }
 

@@ -71,9 +71,6 @@ else
         try
         {
             Characters = (await CharacterStorage.LoadAllAsync()).ToList();
-#if ANDROID
-            await ImportPendingAndRefreshAsync();
-#endif
         }
         finally
         {
@@ -81,22 +78,4 @@ else
         }
     }
 
-#if ANDROID
-    private async Task ImportPendingAndRefreshAsync()
-    {
-        try
-        {
-            var imported = await CharacterStorage.ImportPendingAndroidFileAsync();
-            if (imported)
-            {
-                Characters = (await CharacterStorage.LoadAllAsync()).ToList();
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-        catch
-        {
-            // A bad incoming file must not break navigation.
-        }
-    }
-#endif
 }

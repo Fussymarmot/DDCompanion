@@ -4,6 +4,7 @@
 @using DDCompanion.Models
 @inject CharacterStorageService CharacterStorage
 @inject SettingsTransferService SettingsTransfer
+@implements IDisposable
 
 <PageTitle>Настройки</PageTitle>
 
@@ -28,12 +29,28 @@
         {
             <div class="option-add-notice">@RaceAddMessage</div>
         }
-        <div class="option-chips">
-            @foreach (var item in Races)
-            {
-                <span class="option-chip"><span>@item</span><button type="button" title="Удалить @item" aria-label="Удалить @item" @onclick="() => RemoveRace(item)">×</button></span>
-            }
-        </div>
+        <button class="option-list-toggle" type="button" @onclick="ToggleRaces" aria-expanded="@ShowRaces">
+            <span>@(ShowRaces ? "Скрыть список" : $"Показать список ({Races.Count})")</span>
+            <svg class="option-list-toggle-icon @(ShowRaces ? "is-open" : "")" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" aria-hidden="true">
+                <path fill="currentColor" d="M297.4 471.1L105.4 279.1C92.9 266.6 92.9 246.3 105.4 233.8C117.9 221.3 138.2 221.3 150.7 233.8L320 403.2L489.4 233.9C501.9 221.4 522.2 221.4 534.7 233.9C547.2 246.4 547.2 266.7 534.7 279.2L342.7 471.2C330.2 483.6 309.9 483.6 297.4 471.1z"/>
+            </svg>
+        </button>
+        @if (ShowRaces)
+        {
+            <div class="option-chips">
+                @foreach (var item in Races)
+                {
+                    <button class="option-chip @(DeletingRace == item ? "is-delete-mode" : "")" type="button"
+                            title="@(DeletingRace == item ? $"Нажмите, чтобы удалить {item}" : $"Удерживайте для удаления {item}")"
+                            @onpointerdown="() => BeginRacePress(item)"
+                            @onpointerup="() => EndRacePress(item)"
+                            @onpointercancel="CancelRacePress"
+                            @onpointerleave="CancelRacePress">
+                        <span>@(DeletingRace == item ? "Удалить" : item)</span>
+                    </button>
+                }
+            </div>
+        }
     </section>
     
     <section class="settings-card">
@@ -55,12 +72,28 @@
         {
             <div class="option-add-notice">@ClassAddMessage</div>
         }
-        <div class="option-chips">
-            @foreach (var item in Classes)
-            {
-                <span class="option-chip"><span>@item</span><button type="button" title="Удалить @item" aria-label="Удалить @item" @onclick="() => RemoveClass(item)">×</button></span>
-            }
-        </div>
+        <button class="option-list-toggle" type="button" @onclick="ToggleClasses" aria-expanded="@ShowClasses">
+            <span>@(ShowClasses ? "Скрыть список" : $"Показать список ({Classes.Count})")</span>
+            <svg class="option-list-toggle-icon @(ShowClasses ? "is-open" : "")" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" aria-hidden="true">
+                <path fill="currentColor" d="M297.4 471.1L105.4 279.1C92.9 266.6 92.9 246.3 105.4 233.8C117.9 221.3 138.2 221.3 150.7 233.8L320 403.2L489.4 233.9C501.9 221.4 522.2 221.4 534.7 233.9C547.2 246.4 547.2 266.7 534.7 279.2L342.7 471.2C330.2 483.6 309.9 483.6 297.4 471.1z"/>
+            </svg>
+        </button>
+        @if (ShowClasses)
+        {
+            <div class="option-chips">
+                @foreach (var item in Classes)
+                {
+                    <button class="option-chip @(DeletingClass == item ? "is-delete-mode" : "")" type="button"
+                            title="@(DeletingClass == item ? $"Нажмите, чтобы удалить {item}" : $"Удерживайте для удаления {item}")"
+                            @onpointerdown="() => BeginClassPress(item)"
+                            @onpointerup="() => EndClassPress(item)"
+                            @onpointercancel="CancelClassPress"
+                            @onpointerleave="CancelClassPress">
+                        <span>@(DeletingClass == item ? "Удалить" : item)</span>
+                    </button>
+                }
+            </div>
+        }
     </section>
 
     <section class="settings-card settings-transfer-card">
@@ -227,6 +260,14 @@
     private string? RaceAddMessage { get; set; }
     private string? SettingsMessage { get; set; }
     private bool SettingsError { get; set; }
+    private bool ShowRaces { get; set; }
+    private bool ShowClasses { get; set; }
+    private string? DeletingRace { get; set; }
+    private string? DeletingClass { get; set; }
+    private CancellationTokenSource? RacePressCts { get; set; }
+    private CancellationTokenSource? ClassPressCts { get; set; }
+    private bool RaceLongPressActivated { get; set; }
+    private bool ClassLongPressActivated { get; set; }
     private IReadOnlyList<string> Classes => CharacterOptions.Classes;
     private IReadOnlyList<string> Races => CharacterOptions.Races;
     private string CharactersDirectory => CharacterStorage.GetCharactersDirectory();
@@ -261,8 +302,109 @@
         }
     }
 
-    private void RemoveClass(string value) => CharacterOptions.RemoveClass(value);
-    private void RemoveRace(string value) => CharacterOptions.RemoveRace(value);
+    private void ToggleRaces()
+    {
+        ShowRaces = !ShowRaces;
+        DeletingRace = null;
+    }
+
+    private void ToggleClasses()
+    {
+        ShowClasses = !ShowClasses;
+        DeletingClass = null;
+    }
+
+    private void BeginRacePress(string value)
+    {
+        CancelRacePress();
+        if (DeletingRace == value)
+            return;
+
+        RacePressCts = new CancellationTokenSource();
+        _ = ActivateRaceDeleteModeAsync(value, RacePressCts.Token);
+    }
+
+    private async Task ActivateRaceDeleteModeAsync(string value, CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(550, token);
+            if (!token.IsCancellationRequested)
+            {
+                DeletingClass = null;
+                DeletingRace = value;
+                RaceLongPressActivated = true;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private void EndRacePress(string value)
+    {
+        var wasDeleteMode = DeletingRace == value;
+        var wasLongPress = RaceLongPressActivated;
+        CancelRacePress();
+        if (wasDeleteMode && !wasLongPress)
+        {
+            CharacterOptions.RemoveRace(value);
+            DeletingRace = null;
+        }
+        RaceLongPressActivated = false;
+    }
+
+    private void CancelRacePress()
+    {
+        RacePressCts?.Cancel();
+        RacePressCts?.Dispose();
+        RacePressCts = null;
+    }
+
+    private void BeginClassPress(string value)
+    {
+        CancelClassPress();
+        if (DeletingClass == value)
+            return;
+
+        ClassPressCts = new CancellationTokenSource();
+        _ = ActivateClassDeleteModeAsync(value, ClassPressCts.Token);
+    }
+
+    private async Task ActivateClassDeleteModeAsync(string value, CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(550, token);
+            if (!token.IsCancellationRequested)
+            {
+                DeletingRace = null;
+                DeletingClass = value;
+                ClassLongPressActivated = true;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private void EndClassPress(string value)
+    {
+        var wasDeleteMode = DeletingClass == value;
+        var wasLongPress = ClassLongPressActivated;
+        CancelClassPress();
+        if (wasDeleteMode && !wasLongPress)
+        {
+            CharacterOptions.RemoveClass(value);
+            DeletingClass = null;
+        }
+        ClassLongPressActivated = false;
+    }
+
+    private void CancelClassPress()
+    {
+        ClassPressCts?.Cancel();
+        ClassPressCts?.Dispose();
+        ClassPressCts = null;
+    }
 
     private void HandleClassKey(KeyboardEventArgs e)
     {
@@ -341,6 +483,12 @@
             SettingsError = true;
             SettingsMessage = $"Не удалось импортировать настройки: {ex.Message}";
         }
+    }
+
+    public void Dispose()
+    {
+        CancelRacePress();
+        CancelClassPress();
     }
 
     private async Task OpenLink(string url)

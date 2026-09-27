@@ -47,7 +47,8 @@ DDCompanion/
 ├── Services/
 │   ├── CharacterStorageService.cs   # reads/writes/imports/deletes .ddc files
 │   ├── ImageCompressionService.cs   # compresses the character photo into base64 JPEG
-│   └── PendingCharacterImport.cs    # bridges platform code → Blazor UI when a .ddc is opened externally
+│   ├── PendingFileImport.cs         # signals external file opens to the Blazor UI
+│   └── ExternalImportService.cs     # imports external .ddc/.ddcs files and routes them
 ├── Platforms/                 # platform-specific code (Android/iOS/Windows/MacCatalyst)
 └── wwwroot/                   # static assets: CSS, fonts, JS
 ```
@@ -79,7 +80,7 @@ Characters are stored as plain files on disk — there is no database.
   - `ImportAsync(stream)` — importing a third-party `.ddc` file;
   - `DeleteAsync(fileName)` — deleting a character;
   - automatic migration of old files (`Version < 2`) — recalculating ability modifiers on first load.
-- Opening a `.ddc` file from another app (e.g. a file manager or a messenger) on Android is handled by platform code and forwarded to Blazor through `PendingCharacterImport` (a `Requested` event that `MainLayout` subscribes to).
+- Opening a `.ddc` character or `.ddcs` settings file from another app on Android is received by platform code, detected from the JSON `format`, imported, and then routed to the character page or settings page. `MainLayout` handles both cold and warm launches.
 
 ### The `.ddc` file format
 
