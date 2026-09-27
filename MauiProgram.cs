@@ -18,6 +18,7 @@ public static class MauiProgram
 		builder.Services.AddMauiBlazorWebView();
 		builder.Services.AddSingleton<CharacterStorageService>();
 			builder.Services.AddSingleton<SettingsTransferService>();
+		builder.Services.AddSingleton<ThemeService>();
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();

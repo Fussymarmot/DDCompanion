@@ -16,8 +16,8 @@
 
     padding: 0 10px;
 
-    background: #171717;
-    border-bottom: 1px solid #292929;
+    background: var(--dd-surface);
+    border-bottom: 1px solid var(--dd-border);
 }
 
 
@@ -39,7 +39,7 @@
     border-radius: 8px;
 
     background: transparent;
-    color: #d0d0d0;
+    color: var(--dd-icon);
 
     cursor: pointer;
 
@@ -51,12 +51,12 @@
 }
 
 .header-button:hover {
-    background: #292929;
-    color: #ffffff;
+    background: var(--dd-border);
+    color: var(--dd-text);
 }
 
 .header-button:active {
-    background: #333333;
+    background: var(--dd-border-strong);
 }
 
 
@@ -78,6 +78,58 @@
 
 
 /* =========================
+   Theme toggle
+   ========================= */
+
+.theme-toggle-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle-button .theme-icon {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transition: transform 0.28s cubic-bezier(.4, 0, .2, 1),
+                opacity 0.18s ease;
+}
+
+.theme-toggle-button .theme-icon svg {
+    width: 21px;
+    height: 21px;
+    display: block;
+    fill: currentColor;
+    stroke: none;
+}
+
+.theme-toggle-button .theme-icon-sun {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+}
+
+.theme-toggle-button .theme-icon-moon {
+    transform: rotate(-90deg) scale(.55);
+    opacity: 0;
+}
+
+.theme-toggle-button.is-light .theme-icon-sun {
+    transform: rotate(90deg) scale(.55);
+    opacity: 0;
+}
+
+.theme-toggle-button.is-light .theme-icon-moon {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle-button .theme-icon {
+        transition: none;
+    }
+}
+
+/* =========================
    Left / right sides
    ========================= */
 
@@ -97,7 +149,7 @@
 .app-title {
     justify-self: center;
 
-    color: #ffffff !important;
+    color: var(--dd-text) !important;
     text-decoration: none !important;
     border: 0;
     background: transparent;
@@ -112,7 +164,7 @@
 }
 
 .app-title span:first-child {
-    color: #ffffff;
+    color: var(--dd-text);
 }
 
 .app-title span:last-child {
@@ -127,7 +179,7 @@
 .page-title {
     grid-column: 2;
 
-    color: #ffffff;
+    color: var(--dd-text);
 
     font-size: 18px;
     font-weight: 700;
@@ -166,7 +218,7 @@
 
     box-sizing: border-box;
 
-    background: rgba(0, 0, 0, 0.55);
+    background: var(--dd-overlay);
 }
 
 
@@ -181,11 +233,11 @@
 
     box-sizing: border-box;
 
-    background: #1c1c1c;
-    border: 1px solid #303030;
+    background: var(--dd-elevated);
+    border: 1px solid var(--dd-border-strong);
     border-radius: 12px;
 
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 40px var(--dd-shadow-overlay);
 }
 
 
@@ -198,7 +250,7 @@
     border-radius: 8px;
 
     background: transparent;
-    color: #d0d0d0;
+    color: var(--dd-icon);
 
     font: inherit;
     text-align: left;
@@ -211,8 +263,8 @@
 }
 
 .character-action:hover {
-    background: #292929;
-    color: #ffffff;
+    background: var(--dd-border);
+    color: var(--dd-text);
 }
 
 

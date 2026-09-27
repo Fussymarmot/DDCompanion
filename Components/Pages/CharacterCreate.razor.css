@@ -27,10 +27,10 @@
     height: 160px;
     padding: 0;
     overflow: hidden;
-    border: 2px dashed #4a4a4a;
+    border: 2px dashed var(--dd-avatar-border);
     border-radius: 18px;
-    background: #181818;
-    color: #777;
+    background: var(--dd-surface-alt);
+    color: var(--dd-muted);
     cursor: pointer;
 }
 
@@ -50,7 +50,7 @@
 }
 
 .avatar-hint, .avatar-error {
-    color: #888;
+    color: var(--dd-secondary-text);
     font-size: 12px;
     text-align: center;
 }
@@ -71,14 +71,14 @@
 .form-section {
     padding: 20px;
     margin-top: 18px;
-    background: #171717;
-    border: 1px solid #292929;
+    background: var(--dd-surface);
+    border: 1px solid var(--dd-border);
     border-radius: 14px;
 }
 
 .form-section h2 {
     margin: 0 0 16px;
-    color: #fff;
+    color: var(--dd-text);
     font-size: 18px;
 }
 
@@ -86,7 +86,7 @@ label {
     display: flex;
     flex-direction: column;
     gap: 7px;
-    color: #bdbdbd;
+    color: var(--dd-text-secondary);
     font-size: 13px;
     font-weight: 600;
     /* Fixed line-height so the caption's box height stays identical for every
@@ -104,11 +104,11 @@ label {
     min-height: 42px;
     padding: 9px 11px;
     box-sizing: border-box;
-    border: 1px solid #343434;
+    border: 1px solid var(--dd-input-border);
     border-radius: 8px;
     outline: none;
-    background: #101010;
-    color: #fff;
+    background: var(--dd-bg);
+    color: var(--dd-text);
     font: inherit;
 }
 
@@ -140,8 +140,8 @@ label {
 
 .section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
 .section-heading h2 { margin:0; }
-.section-heading p { margin:4px 0 0; color:#777; font-size:12px; }
-.small-button { border:1px solid #444; border-radius:8px; background:#222; color:#fff; padding:8px 12px; cursor:pointer; }
+.section-heading p { margin:4px 0 0; color:var(--dd-muted); font-size:12px; }
+.small-button { border:1px solid var(--dd-button-border); border-radius:8px; background:var(--dd-button); color:var(--dd-text); padding:8px 12px; cursor:pointer; }
 .remove-button { border:0; background:transparent; color:#ef5350; font-size:25px; cursor:pointer; }
 
 /* Skill and inventory cards */
@@ -149,10 +149,10 @@ label {
     position: relative;
     margin-top: 12px;
     padding: 42px 16px 16px;
-    border: 2px solid #3a3a3a;
+    border: 2px solid var(--dd-border-strong);
     border-radius: 12px;
-    background: #171717;
-    box-shadow: 0 0 0 1px rgba(255,255,255,.02);
+    background: var(--dd-surface);
+    box-shadow: 0 0 0 1px var(--dd-subtle-overlay);
     box-sizing: border-box;
 }
 
@@ -189,7 +189,7 @@ label {
 }
 
 .card-remove:hover {
-    background: #242424;
+    background: var(--dd-button);
 }
 
 .description-input {
@@ -207,7 +207,7 @@ label {
 
 .quantity-label {
     flex: 0 0 auto;
-    color: #fff;
+    color: var(--dd-text);
     font: inherit;
     font-weight: 600;
     white-space: nowrap;

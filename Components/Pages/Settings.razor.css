@@ -17,8 +17,8 @@
 .settings-card {
     position: relative;
     padding: 22px 20px;
-    background: linear-gradient(180deg, #181818, #141414);
-    border: 1px solid #292929;
+    background: var(--dd-card-gradient);
+    border: 1px solid var(--dd-border);
     border-radius: 16px;
     overflow: hidden;
 }
@@ -49,20 +49,20 @@
 
 .settings-card h2 {
     margin: 0;
-    color: #fff;
+    color: var(--dd-text);
     font-size: 18px;
     letter-spacing: 0.2px;
 }
 
 .settings-card-subtitle {
     margin: 2px 0 0;
-    color: #888;
+    color: var(--dd-secondary-text);
     font-size: 13px;
 }
 
 .settings-card-text {
     margin: 0 0 16px;
-    color: #bdbdbd;
+    color: var(--dd-text-secondary);
     font-size: 14px;
     line-height: 2;
 }
@@ -116,8 +116,8 @@
 .value-badge {
     padding: 1px 6px;
     border-radius: 5px;
-    background: #1c1c1c;
-    border: 1px solid #333;
+    background: var(--dd-elevated);
+    border: 1px solid var(--dd-border-strong);
     color: #ffca7a;
     font-family: Consolas, monospace;
     font-size: 12px;
@@ -133,13 +133,13 @@
     gap: 6px;
     padding: 12px 14px;
     border-radius: 10px;
-    background: #101010;
-    border: 1px solid #262626;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-border-subtle);
     margin-bottom: 16px;
 }
 
 .settings-path-label {
-    color: #777;
+    color: var(--dd-muted);
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
@@ -174,13 +174,13 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    color: #aaa;
+    color: var(--dd-secondary-light);
     font-size: 13.5px;
     line-height: 1.7;
 }
 
 .settings-fact-list strong {
-    color: #fff;
+    color: var(--dd-text);
 }
 
 .fact-dot {
@@ -207,8 +207,8 @@
 .format-field {
     padding: 12px 14px;
     border-radius: 10px;
-    background: #101010;
-    border: 1px solid #242424;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-button);
     border-left: 3px solid #c62828;
 }
 
@@ -221,7 +221,7 @@
 }
 
 .field-name {
-    color: #fff;
+    color: var(--dd-text);
     font-family: Consolas, monospace;
     font-weight: 700;
     font-size: 13.5px;
@@ -256,7 +256,7 @@
 
 .format-field p {
     margin: 0;
-    color: #999;
+    color: var(--dd-secondary-strong);
     font-size: 13px;
     line-height: 1.6;
 }
@@ -268,14 +268,14 @@
 .settings-hint {
     margin: 0;
     padding-top: 12px;
-    border-top: 1px dashed #262626;
-    color: #888;
+    border-top: 1px dashed var(--dd-border-subtle);
+    color: var(--dd-secondary-text);
     font-size: 12.5px;
     line-height: 1.6;
 }
 
 .settings-hint strong {
-    color: #ccc;
+    color: var(--dd-text-tertiary);
 }
 
 /* =========================
@@ -295,8 +295,8 @@
     width: 100%;
     padding: 12px 14px;
     border-radius: 10px;
-    background: #101010;
-    border: 1px solid #242424;
+    background: var(--dd-bg);
+    border: 1px solid var(--dd-button);
     color: inherit;
     text-decoration: none;
     font: inherit;
@@ -306,8 +306,8 @@
 }
 
 .contact-link:hover {
-    background: #171717;
-    border-color: #333;
+    background: var(--dd-surface);
+    border-color: var(--dd-border-strong);
 }
 
 .contact-link:active {
@@ -347,13 +347,13 @@
 }
 
 .contact-link-title {
-    color: #fff;
+    color: var(--dd-text);
     font-size: 14px;
     font-weight: 700;
 }
 
 .contact-link-value {
-    color: #888;
+    color: var(--dd-secondary-text);
     font-size: 12.5px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -362,7 +362,7 @@
 
 .contact-link-arrow {
     flex: 0 0 auto;
-    color: #555;
+    color: var(--dd-icon);
     transition: transform 0.15s ease, color 0.15s ease;
 }
 
@@ -373,7 +373,7 @@
 }
 
 .contact-link:hover .contact-link-arrow {
-    color: #999;
+    color: var(--dd-secondary-strong);
     transform: translateX(2px);
 }
 
@@ -407,18 +407,18 @@
     box-sizing: border-box;
     padding: 11px 13px;
     border-radius: 10px;
-    border: 1px solid #303030;
+    border: 1px solid var(--dd-border-strong);
     outline: none;
-    background: #101010;
-    color: #fff;
+    background: var(--dd-bg);
+    color: var(--dd-text);
     font: inherit;
     font-size: 14px;
     transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
 
-.option-input::placeholder { color: #666; }
+.option-input::placeholder { color: var(--dd-placeholder); }
 .option-input:focus {
-    background: #121212;
+    background: var(--dd-input-bg);
     border-color: #b92a2a;
     box-shadow: 0 0 0 3px rgba(198, 40, 40, .12);
 }
@@ -428,7 +428,7 @@
     border: 1px solid #b52a2a;
     border-radius: 10px;
     background: #c62828;
-    color: #fff;
+    color: var(--dd-text);
     font: inherit;
     font-size: 13px;
     font-weight: 700;
@@ -451,10 +451,10 @@
     gap: 7px;
     min-height: 32px;
     padding: 0 5px 0 11px;
-    border: 1px solid #2d2d2d;
+    border: 1px solid var(--dd-border);
     border-radius: 9px;
-    background: #101010;
-    color: #d7d7d7;
+    background: var(--dd-bg);
+    color: var(--dd-chip-text);
     font-size: 13px;
 }
 
@@ -467,7 +467,7 @@
     border: 0;
     border-radius: 7px;
     background: transparent;
-    color: #777;
+    color: var(--dd-muted);
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
@@ -504,10 +504,10 @@
     align-items: center;
     gap: 11px;
     padding: 12px 13px;
-    border: 1px solid #2b2b2b;
+    border: 1px solid var(--dd-border);
     border-radius: 11px;
-    background: #101010;
-    color: #fff;
+    background: var(--dd-bg);
+    color: var(--dd-text);
     font: inherit;
     text-align: left;
     cursor: pointer;
@@ -515,8 +515,8 @@
 }
 
 .settings-transfer-button:hover {
-    background: #171717;
-    border-color: #3a3a3a;
+    background: var(--dd-surface);
+    border-color: var(--dd-border-strong);
 }
 
 .settings-transfer-button:active { transform: scale(.985); }
@@ -538,7 +538,7 @@
     display: grid;
     place-items: center;
     border-radius: 9px;
-    background: #1d1d1d;
+    background: var(--dd-elevated);
     color: #ffca7a;
     font-size: 20px;
     font-weight: 700;
@@ -557,13 +557,13 @@
 }
 
 .settings-transfer-button strong {
-    color: #eee;
+    color: var(--dd-text-near-white);
     font-size: 13px;
     line-height: 1.2;
 }
 
 .settings-transfer-button small {
-    color: #777;
+    color: var(--dd-muted);
     font-size: 11px;
     line-height: 1.35;
 }

@@ -1,10 +1,12 @@
 ﻿@* Root layout: navigation header plus the routed page content. *@
 @using Microsoft.JSInterop
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject ThemeService ThemeService
 
-<div class="app">
+<div class="app @(ThemeService.IsLightTheme ? "theme-light" : "theme-dark")">
     <NavMenu />
 
     <main class="content">
@@ -14,6 +16,18 @@
 
 
 @code {
+    protected override void OnInitialized()
+    {
+        ThemeService.ThemeChanged += OnThemeChanged;
+    }
+
+    private void OnThemeChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

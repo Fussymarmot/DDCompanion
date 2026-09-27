@@ -20,7 +20,7 @@
 
 .not-found p {
     margin: 0 0 12px;
-    color: #888;
+    color: var(--dd-secondary-text);
     font-size: 15px;
 }
 
@@ -30,7 +30,7 @@
     border: 0;
     border-radius: 9px;
     background: #c62828;
-    color: #fff;
+    color: var(--dd-text);
     font: inherit;
     font-weight: 700;
     cursor: pointer;

@@ -1,10 +1,75 @@
 /* Root layout: app shell and content area. */
 
 .app {
+    color-scheme: dark;
+    --dd-bg: #101010;
+    --dd-surface: #171717;
+    --dd-surface-alt: #181818;
+    --dd-elevated: #1c1c1c;
+    --dd-button: #242424;
+    --dd-card-end: #141414;
+    --dd-input-bg: #121212;
+    --dd-border-subtle: #262626;
+    --dd-border: #292929;
+    --dd-border-strong: #333333;
+    --dd-input-border: #343434;
+    --dd-button-border: #444444;
+    --dd-avatar-border: #4a4a4a;
+    --dd-muted-strong: #555555;
+    --dd-placeholder: #666666;
+    --dd-muted: #777777;
+    --dd-secondary-text: #888888;
+    --dd-secondary-strong: #999999;
+    --dd-secondary-light: #aaaaaa;
+    --dd-text-secondary: #bdbdbd;
+    --dd-text-tertiary: #cccccc;
+    --dd-chip-text: #d7d7d7;
+    --dd-icon: #d0d0d0;
+    --dd-text-near-white: #eeeeee;
+    --dd-text: #ffffff;
+    --dd-subtle-overlay: rgba(255, 255, 255, .02);
+    --dd-shadow-overlay: rgba(0, 0, 0, .5);
+    --dd-overlay: rgba(0, 0, 0, .55);
+    --dd-card-gradient: linear-gradient(180deg, #181818, #141414);
+
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #101010;
+    background: var(--dd-bg);
+    color: var(--dd-text);
+}
+
+.app.theme-light {
+    color-scheme: light;
+    --dd-bg: #f5f5f5;
+    --dd-surface: #ffffff;
+    --dd-surface-alt: #fafafa;
+    --dd-elevated: #ffffff;
+    --dd-button: #eeeeee;
+    --dd-card-end: #f8f8f8;
+    --dd-input-bg: #fafafa;
+    --dd-border-subtle: #e5e5e5;
+    --dd-border: #d9d9d9;
+    --dd-border-strong: #c9c9c9;
+    --dd-input-border: #d2d2d2;
+    --dd-button-border: #c5c5c5;
+    --dd-avatar-border: #bdbdbd;
+    --dd-muted-strong: #777777;
+    --dd-placeholder: #888888;
+    --dd-muted: #707070;
+    --dd-secondary-text: #666666;
+    --dd-secondary-strong: #555555;
+    --dd-secondary-light: #555555;
+    --dd-text-secondary: #555555;
+    --dd-text-tertiary: #444444;
+    --dd-chip-text: #333333;
+    --dd-icon: #444444;
+    --dd-text-near-white: #222222;
+    --dd-text: #1d1d1d;
+    --dd-subtle-overlay: rgba(0, 0, 0, .025);
+    --dd-shadow-overlay: rgba(0, 0, 0, .16);
+    --dd-overlay: rgba(0, 0, 0, .25);
+    --dd-card-gradient: linear-gradient(180deg, #ffffff, #f8f8f8);
 }
 
 .content {
