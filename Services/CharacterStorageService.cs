@@ -1,5 +1,7 @@
-// Loads, saves, imports and deletes characters stored as .ddc JSON files
-// in the app's private Characters folder.
+// Loads, saves, imports and deletes characters stored as .ddc JSON files.
+// On Windows the Characters folder lives in the user's Documents
+// (Documents\DDCompanion\Characters) so anyone can find, back up and copy the
+// files. On other platforms it stays in the app's private data folder.
 
 using System.Text;
 using System.Text.Json;
@@ -11,15 +13,81 @@ namespace DDCompanion.Services;
 public sealed class CharacterStorageService
 {
     private const string CharactersFolderName = "Characters";
+    private const string AppFolderName = "DDCompanion";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true
     };
 
-    private string CharactersDirectory => Path.Combine(FileSystem.AppDataDirectory, CharactersFolderName);
+    // Legacy location used by all platforms before the Windows folder moved to Documents.
+    private static string LegacyCharactersDirectory =>
+        Path.Combine(FileSystem.AppDataDirectory, CharactersFolderName);
 
-    public CharacterStorageService() => Directory.CreateDirectory(CharactersDirectory);
+    private readonly string charactersDirectory;
+
+    private string CharactersDirectory => charactersDirectory;
+
+    public CharacterStorageService()
+    {
+        charactersDirectory = ResolveCharactersDirectory();
+        Directory.CreateDirectory(charactersDirectory);
+
+#if WINDOWS
+        MigrateLegacyCharacters();
+#endif
+    }
+
+    private static string ResolveCharactersDirectory()
+    {
+#if WINDOWS
+        // GetFolderPath respects a redirected Documents folder (e.g. OneDrive).
+        var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        if (!string.IsNullOrWhiteSpace(documents))
+        {
+            try
+            {
+                var path = Path.Combine(documents, AppFolderName, CharactersFolderName);
+                Directory.CreateDirectory(path);
+                return path;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Documents is not writable - fall back to the app data folder below.
+            }
+        }
+#endif
+        return LegacyCharactersDirectory;
+    }
+
+#if WINDOWS
+    // Moves characters saved by earlier versions (inside the hidden AppData
+    // folder) into Documents. Existing files in the new folder are never overwritten.
+    private void MigrateLegacyCharacters()
+    {
+        var legacy = LegacyCharactersDirectory;
+
+        if (!Directory.Exists(legacy) ||
+            string.Equals(Path.GetFullPath(legacy), Path.GetFullPath(charactersDirectory), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        foreach (var file in Directory.EnumerateFiles(legacy, "*.ddc"))
+        {
+            try
+            {
+                var target = Path.Combine(charactersDirectory, Path.GetFileName(file));
+
+                if (File.Exists(target))
+                    continue;
+
+                File.Move(file, target);
+            }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+    }
+#endif
 
     public async Task<IReadOnlyList<Character>> LoadAllAsync()
     {

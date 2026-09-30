@@ -42,10 +42,31 @@ public sealed class SettingsTransferService
             FileName,
             "application/octet-stream");
 #else
-        var path = Path.Combine(FileSystem.AppDataDirectory, FileName);
+        var path = Path.Combine(GetExportDirectory(), FileName);
         await File.WriteAllTextAsync(path, json);
         return path;
 #endif
+    }
+
+    // Windows: Documents\DDCompanion, next to the Characters folder, so the file is easy to find.
+    // Other platforms: the app's private data folder.
+    private static string GetExportDirectory()
+    {
+#if WINDOWS
+        var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        if (!string.IsNullOrWhiteSpace(documents))
+        {
+            try
+            {
+                var path = Path.Combine(documents, "DDCompanion");
+                Directory.CreateDirectory(path);
+                return path;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+        }
+#endif
+        return FileSystem.AppDataDirectory;
     }
 
     public async Task ShareAsync(string title)

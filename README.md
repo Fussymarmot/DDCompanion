@@ -71,7 +71,7 @@ DDCompanion/
 
 Characters are stored as plain files on disk — there is no database.
 
-- `CharacterStorageService` (registered as a Singleton in `MauiProgram.cs`) creates a `Characters` folder inside `FileSystem.AppDataDirectory` (the app's private sandbox) on startup.
+- `CharacterStorageService` (registered as a Singleton in `MauiProgram.cs`) creates a `Characters` folder on startup. On **Windows** it is `Documents\DDCompanion\Characters` (visible in Explorer; characters from the old hidden AppData location are moved there automatically). On other platforms it is `Characters` inside `FileSystem.AppDataDirectory` (the app's private sandbox).
 - Each character is a separate `<name>.ddc` file in that folder.
 - The service is responsible for:
   - `LoadAllAsync()` / `LoadAsync(path)` — loading all characters / a single one;

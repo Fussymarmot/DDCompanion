@@ -1384,6 +1384,16 @@ label {
     .card-info p { font-size: 12px; }
 }
 
+/* Responsive character grid: 2 columns on small screens, 3 on medium, 4 on large (PC). */
+@media (min-width: 600px) {
+    .character-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+}
+
+@media (min-width: 1024px) {
+    .home { width: min(1200px, 100%); }
+    .character-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+}
+
 
 
 .page-loading {
