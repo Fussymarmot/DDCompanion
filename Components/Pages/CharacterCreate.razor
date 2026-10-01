@@ -64,8 +64,14 @@
                 <label class="stat"><span>Защита</span><InputNumber @bind-Value="Character.Combat.Protection" class="input" /></label>
             </div>
             <div class="two-columns">
-                <label>Оружие<InputText @bind-Value="Character.Combat.Weapon" class="input" placeholder="Длинный меч" /></label>
-                <label>Броня<InputText @bind-Value="Character.Combat.Armor" class="input" placeholder="Кольчуга" /></label>
+                <div class="equipment-field">
+                    <label>Оружие<InputText @bind-Value="Character.Combat.Weapon" class="input" placeholder="Длинный меч" /></label>
+                    <EquipmentPhotoPicker @bind-Value="Character.Combat.WeaponImageBase64" Title="Фото оружия (необязательно)" />
+                </div>
+                <div class="equipment-field">
+                    <label>Броня<InputText @bind-Value="Character.Combat.Armor" class="input" placeholder="Кольчуга" /></label>
+                    <EquipmentPhotoPicker @bind-Value="Character.Combat.ArmorImageBase64" Title="Фото брони (необязательно)" />
+                </div>
             </div>
         </section>
 

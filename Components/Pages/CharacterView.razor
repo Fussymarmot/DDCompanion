@@ -76,15 +76,26 @@ else
                         <button class="value-button" type="button" @onclick="() => ChangeProtection(1)">+</button>
                     </div>
                 </div>
-                <div class="character-detail">
-                    <span class="detail-label">Оружие</span>
-                    <strong class="detail-value">@(string.IsNullOrWhiteSpace(Character.Combat.Weapon) ? "—" : Character.Combat.Weapon)</strong>
-                </div>
-                <div class="character-detail">
-                    <span class="detail-label">Броня</span>
-                    <strong class="detail-value">@(string.IsNullOrWhiteSpace(Character.Combat.Armor) ? "—" : Character.Combat.Armor)</strong>
-                </div>
+                @if (!HasEquipmentPhotos)
+                {
+                    <div class="character-detail">
+                        <span class="detail-label">Оружие</span>
+                        <strong class="detail-value">@(string.IsNullOrWhiteSpace(Character.Combat.Weapon) ? "—" : Character.Combat.Weapon)</strong>
+                    </div>
+                    <div class="character-detail">
+                        <span class="detail-label">Броня</span>
+                        <strong class="detail-value">@(string.IsNullOrWhiteSpace(Character.Combat.Armor) ? "—" : Character.Combat.Armor)</strong>
+                    </div>
+                }
             </div>
+
+            @if (HasEquipmentPhotos)
+            {
+                <div class="equipment-grid">
+                    @EquipmentCard("Оружие", Character.Combat.Weapon, Character.Combat.WeaponImageBase64, "⚔")
+                    @EquipmentCard("Броня", Character.Combat.Armor, Character.Combat.ArmorImageBase64, "🛡")
+                </div>
+            }
         </section>
 
         <section class="view-section">
@@ -165,6 +176,51 @@ else
         builder.OpenElement(seq++, "button"); builder.AddAttribute(seq++, "class", "stat-button"); builder.AddAttribute(seq++, "type", "button"); builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create(this, async () => await ChangeStat(set, recalculateModifier, value + 1))); builder.AddContent(seq++, "+"); builder.CloseElement();
         builder.OpenElement(seq++, "span"); builder.AddAttribute(seq++, "class", "stat-modifier"); builder.AddContent(seq++, FormatModifier(modifier)); builder.CloseElement();
         builder.CloseElement(); builder.CloseElement();
+    };
+
+    private bool HasEquipmentPhotos =>
+        Character is not null &&
+        (!string.IsNullOrWhiteSpace(Character.Combat.WeaponImageBase64) ||
+         !string.IsNullOrWhiteSpace(Character.Combat.ArmorImageBase64));
+
+    // Weapon / armor card: photo on top (or a quiet placeholder when only the other item has a photo).
+    private static RenderFragment EquipmentCard(string label, string name, string image, string glyph) => builder =>
+    {
+        var hasImage = !string.IsNullOrWhiteSpace(image);
+        var seq = 0;
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "equipment-card");
+
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", hasImage ? "equipment-media" : "equipment-media equipment-media-empty");
+        if (hasImage)
+        {
+            builder.OpenElement(seq++, "img");
+            builder.AddAttribute(seq++, "src", image);
+            builder.AddAttribute(seq++, "alt", string.IsNullOrWhiteSpace(name) ? label : name);
+            builder.CloseElement();
+        }
+        else
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddContent(seq++, glyph);
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "class", "equipment-caption");
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "detail-label");
+        builder.AddContent(seq++, label);
+        builder.CloseElement();
+        builder.OpenElement(seq++, "strong");
+        builder.AddAttribute(seq++, "class", "detail-value");
+        builder.AddContent(seq++, string.IsNullOrWhiteSpace(name) ? "—" : name);
+        builder.CloseElement();
+        builder.CloseElement();
+
+        builder.CloseElement();
     };
 
     private static string FormatModifier(int modifier) => modifier > 0 ? "+" + modifier : modifier == 0 ? "+0" : modifier.ToString();

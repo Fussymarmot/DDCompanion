@@ -370,3 +370,56 @@
     min-width: 72px;
     text-align: center;
 }
+
+
+/* Weapon / armor photos: shown only when at least one photo was added. */
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.equipment-card {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--dd-border-strong);
+    border-radius: 12px;
+    background: var(--dd-bg);
+}
+
+.equipment-media {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--dd-surface-alt);
+}
+
+.equipment-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.equipment-media-empty {
+    display: grid;
+    place-items: center;
+    color: var(--dd-muted-strong);
+    font-size: 40px;
+    opacity: .6;
+}
+
+.equipment-caption {
+    flex: 1;
+    padding: 12px 14px 14px;
+    border-top: 1px solid var(--dd-border-strong);
+}
+
+.equipment-caption .detail-label { margin-bottom: 4px; }
+
+@media (max-width: 380px) {
+    .equipment-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,62 @@
+@* Optional photo picker for weapon / armor: dashed "add" box, thumbnail with remove button. *@
+@using DDCompanion.Services
+
+<div class="equipment-photo">
+    <button class="equipment-photo-button @(HasImage ? "has-image" : "")" type="button" @onclick="PickAsync" aria-label="@(HasImage ? "Заменить фото" : "Добавить фото")">
+        @if (HasImage)
+        {
+            <img src="@Value" alt="@Title" />
+        }
+        else
+        {
+            <span class="equipment-photo-plus">+</span>
+            <span class="equipment-photo-text">@Title</span>
+        }
+    </button>
+
+    @if (HasImage)
+    {
+        <button class="equipment-photo-remove" type="button" aria-label="Убрать фото" @onclick="RemoveAsync">×</button>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Error))
+    {
+        <span class="avatar-error">@Error</span>
+    }
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Title { get; set; } = "Добавить фото";
+
+    private string? Error;
+    private bool HasImage => !string.IsNullOrWhiteSpace(Value);
+
+    private async Task PickAsync()
+    {
+        Error = null;
+
+        try
+        {
+            var photo = await MediaPicker.Default.PickPhotoAsync(new MediaPickerOptions { Title = Title });
+            if (photo is null) return;
+
+            await using var stream = await photo.OpenReadAsync();
+            var compressed = await ImageCompressionService.CompressEquipmentAsync(stream);
+
+            Value = compressed;
+            await ValueChanged.InvokeAsync(compressed);
+        }
+        catch (Exception ex)
+        {
+            Error = $"Не удалось выбрать изображение: {ex.Message}";
+        }
+    }
+
+    private async Task RemoveAsync()
+    {
+        Value = string.Empty;
+        await ValueChanged.InvokeAsync(string.Empty);
+    }
+}

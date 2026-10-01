@@ -12,4 +12,8 @@ public class CharacterCombat
 
     public string Weapon { get; set; } = string.Empty;
     public string Armor { get; set; } = string.Empty;
+
+    // Optional photos (compressed JPEG data URIs). Empty string = no photo.
+    public string WeaponImageBase64 { get; set; } = string.Empty;
+    public string ArmorImageBase64 { get; set; } = string.Empty;
 }

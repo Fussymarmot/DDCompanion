@@ -25,17 +25,100 @@
 }
 
 .character-card {
-    overflow: hidden;
+    position: relative;
     border: 1px solid var(--dd-border);
     border-radius: 12px;
     background: var(--dd-surface);
+    cursor: pointer;
 }
 
-.character-card img, .card-avatar {
+/* Lifts the card above its neighbours while its menu is open. */
+.character-card.menu-open { z-index: 5; }
+
+.card-media {
+    position: relative;
+    overflow: hidden;
+    border-radius: 11px 11px 0 0;
+}
+
+.card-media img, .card-avatar {
     display: block;
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
+}
+
+/* Three-dots button in the top-right corner of the photo. */
+.card-menu-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, .55);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.card-menu-button:hover { background: rgba(0, 0, 0, .75); }
+
+.card-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    cursor: default;
+}
+
+.card-menu {
+    position: absolute;
+    top: 48px;
+    right: 8px;
+    z-index: 4;
+    min-width: 150px;
+    max-width: calc(100% - 16px);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px;
+    box-sizing: border-box;
+    background: var(--dd-elevated);
+    border: 1px solid var(--dd-border-strong);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px var(--dd-shadow-overlay);
+    animation: card-menu-in .12s ease-out;
+}
+
+.card-menu-item {
+    min-height: 40px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--dd-icon);
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.card-menu-item:hover { background: var(--dd-button); }
+.card-menu-item.danger-action { color: #ef5350; }
+
+@keyframes card-menu-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .card-avatar {
