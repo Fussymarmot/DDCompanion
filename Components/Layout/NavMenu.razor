@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @inject DDCompanion.Services.CharacterStorageService CharacterStorage
+@inject DDCompanion.Services.CharacterFolderService FolderService
 @inject DDCompanion.Services.ThemeService ThemeService
 @using Microsoft.Maui.ApplicationModel.DataTransfer
 @implements IDisposable
@@ -205,7 +206,10 @@
         if (!confirmed) return;
 
         if (await CharacterStorage.DeleteAsync(fileName))
+        {
+            await FolderService.ForgetCharacterAsync(fileName);
             Navigation.NavigateTo("/");
+        }
     }
 
     private async Task SaveCharacter() => await JS.InvokeVoidAsync("submitCharacterForm");

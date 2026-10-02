@@ -3,6 +3,7 @@
 @using DDCompanion.Models
 @using DDCompanion.Services
 @inject CharacterStorageService CharacterStorage
+@inject CharacterFolderService FolderService
 @using Microsoft.Maui.ApplicationModel.DataTransfer
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -18,11 +19,53 @@
 else
 {
 <div class="home">
-    <div class="home-heading">
-        <div>
-            <h1>Персонажи</h1>
-            <p>Твои сохранённые персонажи</p>
+    <div class="folder-bar">
+        <div class="folder-tabs" role="tablist" aria-label="Папки">
+            <button type="button" role="tab" aria-selected="@(ActiveFolderId is null ? "true" : "false")"
+                    class="folder-tab @(ActiveFolderId is null ? "active" : "") @(DragOverTab == MainTabKey ? "drag-over" : "")"
+                    @onclick="() => SelectFolder(null)"
+                    @ondragover="() => { }" @ondragover:preventDefault="true"
+                    @ondragenter="() => DragOverTab = MainTabKey" @ondragleave="() => DragOverTab = null"
+                    @ondrop="() => DropOnFolderAsync(null)" @ondrop:preventDefault="true">
+                <span class="folder-tab-name">Главная</span>
+                @if (CountIn(null) > 0)
+                {
+                    <span class="folder-tab-count">@CountIn(null)</span>
+                }
+            </button>
+
+            @foreach (var folder in Folders)
+            {
+                var folderId = folder.Id;
+                <button type="button" role="tab" aria-selected="@(ActiveFolderId == folderId ? "true" : "false")"
+                        class="folder-tab @(ActiveFolderId == folderId ? "active" : "") @(DragOverTab == folderId ? "drag-over" : "")"
+                        @onclick="() => SelectFolder(folderId)"
+                        @ondragover="() => { }" @ondragover:preventDefault="true"
+                        @ondragenter="() => DragOverTab = folderId" @ondragleave="() => DragOverTab = null"
+                        @ondrop="() => DropOnFolderAsync(folderId)" @ondrop:preventDefault="true">
+                    <span class="folder-tab-name">@folder.Name</span>
+                    @if (CountIn(folderId) > 0)
+                    {
+                        <span class="folder-tab-count">@CountIn(folderId)</span>
+                    }
+                </button>
+            }
+
+            <button type="button" class="folder-tab folder-tab-add" aria-label="Создать папку" title="Создать папку"
+                    @onclick="OpenCreateFolder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" aria-hidden="true">
+                    <path fill="currentColor" d="M352 128C352 110.3 337.7 96 320 96C302.3 96 288 110.3 288 128L288 288L128 288C110.3 288 96 302.3 96 320C96 337.7 110.3 352 128 352L288 352L288 512C288 529.7 302.3 544 320 544C337.7 544 352 529.7 352 512L352 352L512 352C529.7 352 544 337.7 544 320C544 302.3 529.7 288 512 288L352 288L352 128z"/>
+                </svg>
+            </button>
         </div>
+
+        @if (ActiveFolder is not null)
+        {
+            <button type="button" class="folder-manage-button" aria-label="Действия с папкой" title="Действия с папкой"
+                    @onclick="() => dialog = Dialog.FolderActions">
+                <span aria-hidden="true">⋮</span>
+            </button>
+        }
     </div>
 
     @if (Characters.Count == 0)
@@ -32,16 +75,35 @@ else
             <span>Нажми «+» в шапке, чтобы создать персонажа.</span>
         </div>
     }
+    else if (VisibleCharacters.Count == 0)
+    {
+        <div class="empty-state">
+            @if (ActiveFolder is null)
+            {
+                <span>В главной папке пусто</span>
+                <span>Нажми «+» в шапке, чтобы создать персонажа.</span>
+            }
+            else
+            {
+                <span>В папке «@ActiveFolder.Name» пусто</span>
+                <span>Открой меню ⋮ у персонажа и выбери «В папку».</span>
+            }
+        </div>
+    }
     else
     {
         <div class="character-grid">
-            @foreach (var character in Characters)
+            @foreach (var character in VisibleCharacters)
             {
-                <article class="character-card @(IsMenuOpen(character) ? "menu-open" : "")" @onclick="() => OpenCharacter(character)">
+                <article class="character-card @(IsMenuOpen(character) ? "menu-open" : "") @(draggedFileName == GetFileName(character) ? "dragging" : "")"
+                         draggable="true"
+                         @ondragstart="() => draggedFileName = GetFileName(character)"
+                         @ondragend="() => { draggedFileName = null; DragOverTab = null; }"
+                         @onclick="() => OpenCharacter(character)">
                     <div class="card-media">
                         @if (!string.IsNullOrWhiteSpace(character.ImageBase64))
                         {
-                            <img src="@character.ImageBase64" alt="@character.Name" />
+                            <img src="@character.ImageBase64" alt="@character.Name" draggable="false" />
                         }
                         else
                         {
@@ -58,6 +120,7 @@ else
                     {
                         <div class="card-menu-backdrop" @onclick="CloseMenu" @onclick:stopPropagation="true"></div>
                         <div class="card-menu" role="menu" @onclick:stopPropagation="true">
+                            <button class="card-menu-item" type="button" role="menuitem" @onclick="() => OpenMoveDialog(character)">В папку</button>
                             <button class="card-menu-item" type="button" role="menuitem" @onclick="() => ShareCharacter(character)">Поделиться</button>
                             <button class="card-menu-item" type="button" role="menuitem" @onclick="() => EditCharacter(character)">Изменить</button>
                             <button class="card-menu-item danger-action" type="button" role="menuitem" @onclick="() => DeleteCharacter(character)">Удалить</button>
@@ -73,13 +136,222 @@ else
         </div>
     }
 </div>
+
+@if (dialog != Dialog.None)
+{
+    <div class="folder-dialog-overlay" @onclick="CloseDialog">
+        <div class="folder-dialog" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
+            @switch (dialog)
+            {
+                case Dialog.CreateFolder:
+                case Dialog.RenameFolder:
+                    <h2>@(dialog == Dialog.CreateFolder ? "Новая папка" : "Переименовать папку")</h2>
+                    <input class="input folder-name-input" @ref="nameInput" maxlength="24" placeholder="Название папки, например NPC"
+                           @bind="folderName" @bind:event="oninput" @onkeydown="OnNameKeyDown" />
+                    <div class="folder-dialog-buttons">
+                        <button type="button" class="small-button" @onclick="CloseDialog">Отмена</button>
+                        <button type="button" class="small-button primary" disabled="@string.IsNullOrWhiteSpace(folderName)" @onclick="SubmitFolderNameAsync">
+                            @(dialog == Dialog.CreateFolder ? "Создать" : "Сохранить")
+                        </button>
+                    </div>
+                    break;
+
+                case Dialog.FolderActions:
+                    <h2>@ActiveFolder?.Name</h2>
+                    <button type="button" class="folder-dialog-item" @onclick="OpenRenameFolder">Переименовать</button>
+                    <button type="button" class="folder-dialog-item danger-action" @onclick="DeleteFolderAsync">Удалить папку</button>
+                    break;
+
+                case Dialog.Move:
+                    <h2>Переместить в папку</h2>
+                    <p class="folder-dialog-hint">@movingCharacter?.Name</p>
+                    <button type="button" class="folder-dialog-item @(MovingFolderId is null ? "current" : "")" @onclick="() => MoveToAsync(null)">
+                        <span>Главная</span>
+                        @if (MovingFolderId is null) { <span class="folder-dialog-check">✓</span> }
+                    </button>
+                    @foreach (var folder in Folders)
+                    {
+                        var folderId = folder.Id;
+                        <button type="button" class="folder-dialog-item @(MovingFolderId == folderId ? "current" : "")" @onclick="() => MoveToAsync(folderId)">
+                            <span>@folder.Name</span>
+                            @if (MovingFolderId == folderId) { <span class="folder-dialog-check">✓</span> }
+                        </button>
+                    }
+                    <button type="button" class="folder-dialog-item folder-dialog-new" @onclick="OpenCreateFolderForMove">+ Новая папка</button>
+                    break;
+            }
+        </div>
+    </div>
+}
 }
 
 @code {
+    private enum Dialog { None, CreateFolder, RenameFolder, FolderActions, Move }
+
+    private const string MainTabKey = "__main__";
+
+    // Remembers the selected tab while the user opens a character and comes back.
+    private static string? lastFolderId;
+
     private List<Character> Characters = [];
+    private List<CharacterFolder> Folders = [];
+    private Dictionary<string, string> Assignments = new(StringComparer.OrdinalIgnoreCase);
     private bool IsLoading = true;
-    
+
+    private string? ActiveFolderId;
+    private CharacterFolder? ActiveFolder => ActiveFolderId is null ? null : Folders.FirstOrDefault(f => f.Id == ActiveFolderId);
+
     private string? OpenMenuFileName;
+
+    private Dialog dialog = Dialog.None;
+    private string folderName = string.Empty;
+    private ElementReference nameInput;
+    private bool focusNameInput;
+    private Character? movingCharacter;
+    private bool createFolderForMove;
+
+    private string? draggedFileName;
+    private string? DragOverTab;
+
+    // Returns the id of the folder the character really lives in (null = main folder).
+    private string? FolderOf(Character character) =>
+        Assignments.TryGetValue(GetFileName(character), out var id) && Folders.Any(f => f.Id == id) ? id : null;
+
+    private int CountIn(string? folderId) => Characters.Count(c => FolderOf(c) == folderId);
+
+    private List<Character> VisibleCharacters => Characters.Where(c => FolderOf(c) == ActiveFolderId).ToList();
+
+    private string? MovingFolderId => movingCharacter is null ? null : FolderOf(movingCharacter);
+
+    private void SelectFolder(string? folderId)
+    {
+        CloseMenu();
+        ActiveFolderId = folderId;
+        lastFolderId = folderId;
+    }
+
+    private void CloseDialog()
+    {
+        dialog = Dialog.None;
+        movingCharacter = null;
+        createFolderForMove = false;
+    }
+
+    private void OpenCreateFolder()
+    {
+        folderName = string.Empty;
+        createFolderForMove = false;
+        dialog = Dialog.CreateFolder;
+        focusNameInput = true;
+    }
+
+    private void OpenCreateFolderForMove()
+    {
+        folderName = string.Empty;
+        createFolderForMove = true;
+        dialog = Dialog.CreateFolder;
+        focusNameInput = true;
+    }
+
+    private void OpenRenameFolder()
+    {
+        folderName = ActiveFolder?.Name ?? string.Empty;
+        dialog = Dialog.RenameFolder;
+        focusNameInput = true;
+    }
+
+    private async Task OnNameKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await SubmitFolderNameAsync();
+        else if (e.Key == "Escape") CloseDialog();
+    }
+
+    private async Task SubmitFolderNameAsync()
+    {
+        if (string.IsNullOrWhiteSpace(folderName)) return;
+
+        if (dialog == Dialog.RenameFolder)
+        {
+            if (ActiveFolderId is not null)
+                await FolderService.RenameFolderAsync(ActiveFolderId, folderName);
+        }
+        else
+        {
+            var folder = await FolderService.CreateFolderAsync(folderName);
+            if (folder is not null)
+            {
+                if (createFolderForMove && movingCharacter is not null)
+                    await FolderService.MoveCharacterAsync(GetFileName(movingCharacter), folder.Id);
+
+                SelectFolder(folder.Id);
+            }
+        }
+
+        await ReloadFoldersAsync();
+        CloseDialog();
+    }
+
+    private async Task DeleteFolderAsync()
+    {
+        var folder = ActiveFolder;
+        if (folder is null) { CloseDialog(); return; }
+
+        dialog = Dialog.None;
+
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Удалить папку «{folder.Name}»? Персонажи не удалятся, а вернутся в главную папку.");
+        if (!confirmed) return;
+
+        await FolderService.DeleteFolderAsync(folder.Id);
+        SelectFolder(null);
+        await ReloadFoldersAsync();
+    }
+
+    private void OpenMoveDialog(Character character)
+    {
+        CloseMenu();
+        movingCharacter = character;
+        dialog = Dialog.Move;
+    }
+
+    private async Task MoveToAsync(string? folderId)
+    {
+        if (movingCharacter is not null)
+            await FolderService.MoveCharacterAsync(GetFileName(movingCharacter), folderId);
+
+        await ReloadFoldersAsync();
+        CloseDialog();
+    }
+
+    // Desktop drag-and-drop: drop a card onto a folder tab.
+    private async Task DropOnFolderAsync(string? folderId)
+    {
+        var fileName = draggedFileName;
+        draggedFileName = null;
+        DragOverTab = null;
+
+        if (fileName is null) return;
+
+        await FolderService.MoveCharacterAsync(fileName, folderId);
+        await ReloadFoldersAsync();
+    }
+
+    private async Task ReloadFoldersAsync()
+    {
+        Folders = (await FolderService.GetFoldersAsync()).ToList();
+        Assignments = new Dictionary<string, string>(await FolderService.GetAssignmentsAsync(), StringComparer.OrdinalIgnoreCase);
+
+        if (ActiveFolderId is not null && Folders.All(f => f.Id != ActiveFolderId))
+            SelectFolder(null);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (focusNameInput && dialog is Dialog.CreateFolder or Dialog.RenameFolder)
+        {
+            focusNameInput = false;
+            try { await nameInput.FocusAsync(); } catch { }
+        }
+    }
 
     private static string GetFileName(Character character) =>
         character.StorageFileName ?? $"{character.Name}.ddc";
@@ -136,7 +408,10 @@ else
         if (!confirmed) return;
 
         if (await CharacterStorage.DeleteAsync(GetFileName(character)))
+        {
+            await FolderService.ForgetCharacterAsync(GetFileName(character));
             Characters.Remove(character);
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -144,6 +419,10 @@ else
         try
         {
             Characters = (await CharacterStorage.LoadAllAsync()).ToList();
+            await ReloadFoldersAsync();
+
+            if (lastFolderId is not null && Folders.Any(f => f.Id == lastFolderId))
+                ActiveFolderId = lastFolderId;
         }
         finally
         {

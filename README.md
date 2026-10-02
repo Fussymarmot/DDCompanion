@@ -57,7 +57,7 @@ DDCompanion/
 
 | Route | Page | Purpose |
 |---|---|---|
-| `/` | `Home.razor` | list of saved characters |
+| `/` | `Home.razor` | list of saved characters, split into user folders (tabs under the heading) |
 | `/characters/create` | `CharacterCreate.razor` | create a new character |
 | `/characters/{FileName}` | `CharacterView.razor` | view a character sheet |
 | `/characters/edit/{FileName}` | `CharacterEdit.razor` | edit a character |
@@ -78,6 +78,7 @@ Characters are stored as plain files on disk — there is no database.
   - `SaveAsync(character)` — saving a new character (throws if the name is already taken);
   - `SaveToPathAsync(character, path)` — overwriting an existing file when editing;
   - `ImportAsync(stream)` — importing a third-party `.ddc` file;
+- `CharacterFolderService` keeps the home-page folders in `folders.json` inside the `Characters` folder (folder list + `file name → folder id`). The `.ddc` format is untouched; characters without an entry live in the main folder, and deleting a folder returns its characters to the main folder.
   - `DeleteAsync(fileName)` — deleting a character;
   - automatic migration of old files (`Version < 2`) — recalculating ability modifiers on first load.
 - Opening a `.ddc` character or `.ddcs` settings file from another app on Android is received by platform code, detected from the JSON `format`, imported, and then routed to the character page or settings page. `MainLayout` handles both cold and warm launches.

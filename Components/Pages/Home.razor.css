@@ -3,25 +3,16 @@
 .home {
     width: min(1000px, 100%);
     margin: 0 auto;
-    padding: 28px 18px;
+    padding: 4px 14px 28px;
     box-sizing: border-box;
 }
 
-.home-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.home h1 { margin: 0; color: var(--dd-text); font-size: 26px; }
-.home-heading p { margin: 5px 0 0; color: var(--dd-secondary-text); }
 
 .character-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    margin-top: 24px;
+    margin-top: 14px;
 }
 
 .character-card {
@@ -146,7 +137,6 @@
 }
 
 @media (max-width: 500px) {
-    .home-heading { align-items: flex-start; }
     .character-grid { gap: 10px; }
     .card-info { padding: 10px; }
     .card-info h2 { font-size: 15px; }
@@ -163,6 +153,209 @@
     .character-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 }
 
+
+
+/* ===== Folders (Telegram-style tabs) ===== */
+
+.folder-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0;
+    padding: 4px;
+    box-sizing: border-box;
+    background: var(--dd-surface);
+    border: 1px solid var(--dd-border);
+    border-radius: 999px;
+}
+
+.folder-tabs {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.folder-tabs::-webkit-scrollbar { display: none; }
+
+.folder-tab {
+    flex: 0 0 auto;
+    min-height: 38px;
+    max-width: 180px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--dd-secondary-text);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+
+.folder-tab:hover { color: var(--dd-text); }
+
+.folder-tab.active {
+    background: var(--dd-button);
+    border-color: var(--dd-button-border);
+    color: #ef5350;
+}
+
+.folder-tab.drag-over {
+    border-color: #c62828;
+    background: var(--dd-button);
+    color: var(--dd-text);
+}
+
+.folder-tab-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.folder-tab-count {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    box-sizing: border-box;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--dd-border-strong);
+    color: var(--dd-text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.folder-tab.active .folder-tab-count {
+    background: #c62828;
+    color: #fff;
+}
+
+.folder-tab-add {
+    width: 38px;
+    padding: 0;
+    justify-content: center;
+    color: var(--dd-muted);
+}
+
+.folder-tab-add svg { width: 18px; height: 18px; }
+
+.folder-manage-button {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--dd-icon);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.folder-manage-button:hover { background: var(--dd-button); }
+
+.character-card.dragging { opacity: .45; }
+
+/* Dialogs: create / rename folder, folder actions, move character. */
+.folder-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: var(--dd-overlay);
+}
+
+.folder-dialog {
+    width: min(360px, 100%);
+    max-height: 80vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    box-sizing: border-box;
+    background: var(--dd-elevated);
+    border: 1px solid var(--dd-border-strong);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px var(--dd-shadow-overlay);
+    color: var(--dd-text);
+}
+
+.folder-dialog h2 {
+    margin: 0 0 4px;
+    padding: 0 4px;
+    color: var(--dd-text);
+    font-size: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.folder-dialog-hint {
+    margin: -2px 0 4px;
+    padding: 0 4px;
+    color: var(--dd-secondary-text);
+    font-size: 13px;
+}
+
+.folder-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.folder-dialog .small-button.primary {
+    border-color: #c62828;
+    background: #c62828;
+    color: #fff;
+}
+
+.folder-dialog .small-button:disabled { opacity: .45; cursor: default; }
+
+.folder-dialog-item {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--dd-icon);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.folder-dialog-item:hover { background: var(--dd-button); }
+.folder-dialog-item.current { color: #ef5350; font-weight: 700; }
+.folder-dialog-item.danger-action { color: #ef5350; }
+.folder-dialog-item.folder-dialog-new { color: var(--dd-secondary-strong); border-top: 1px solid var(--dd-border); border-radius: 0 0 8px 8px; }
+.folder-dialog-check { color: #ef5350; font-weight: 800; }
+
+@media (max-width: 500px) {
+    .folder-tab { padding: 0 12px; font-size: 13px; }
+}
 
 
 .page-loading {
