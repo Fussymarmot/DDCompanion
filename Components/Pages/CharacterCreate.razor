@@ -75,23 +75,21 @@
             </div>
         </section>
 
-        <section class="form-section">
-            <div class="section-heading"><div><h2>Навыки</h2><p>Можно оставить пустыми и добавить позже.</p></div><button type="button" class="small-button" @onclick="AddSkill">Добавить</button></div>
+        <CollapsibleSection Title="Навыки" Description="Можно оставить пустыми и добавить позже." Count="Character.Skills.Count" OnAdd="AddSkill">
             @foreach (var skill in Character.Skills)
             {
-                <div class="skill-card">
+                <div class="skill-card" @key="skill">
                     <button type="button" class="remove-button card-remove" aria-label="Удалить навык" @onclick="() => RemoveSkill(skill)">×</button>
                     <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
                     <InputTextArea @bind-Value="skill.Description" class="input description-input" placeholder="Описание" rows="3" />
                 </div>
             }
-        </section>
+        </CollapsibleSection>
 
-        <section class="form-section">
-            <div class="section-heading"><div><h2>Инвентарь</h2><p>Предметы, с которыми персонаж начинает игру.</p></div><button type="button" class="small-button" @onclick="AddItem">Добавить</button></div>
+        <CollapsibleSection Title="Инвентарь" Description="Предметы, с которыми персонаж начинает игру." Count="Character.Inventory.Count" OnAdd="AddItem">
             @foreach (var item in Character.Inventory)
             {
-                <div class="item-card">
+                <div class="item-card" @key="item">
                     <button type="button" class="remove-button card-remove" aria-label="Удалить предмет" @onclick="() => RemoveItem(item)">×</button>
                     <div class="item-card-fields">
                         <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
@@ -100,7 +98,7 @@
                     </div>
                 </div>
             }
-        </section>
+        </CollapsibleSection>
     </EditForm>
 </div>
 
@@ -132,9 +130,10 @@
 
     private void RecalculateModifiers() => Character.Stats.RecalculateModifiers();
 
-    private void AddSkill() => Character.Skills.Add(new CharacterSkill());
+    // New entries go to the top of the list so they appear right under the "Add" button.
+    private void AddSkill() => Character.Skills.Insert(0, new CharacterSkill());
     private void RemoveSkill(CharacterSkill skill) => Character.Skills.Remove(skill);
-    private void AddItem() => Character.Inventory.Add(new CharacterItem());
+    private void AddItem() => Character.Inventory.Insert(0, new CharacterItem());
     private void RemoveItem(CharacterItem item) => Character.Inventory.Remove(item);
 
     private async Task CreateCharacter()

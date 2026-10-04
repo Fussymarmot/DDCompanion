@@ -22,8 +22,30 @@ else
             <section class="form-section"><h2>Основные сведения</h2><div class="two-columns"><label>Мировоззрение<InputText @bind-Value="Character.Worldview" class="input" /></label><label>Телосложение<InputText @bind-Value="Character.BodyType" class="input" /></label></div><label>Предыстория<InputTextArea @bind-Value="Character.Backstory" class="input textarea" /></label></section>
             <section class="form-section"><h2>Характеристики</h2><div class="stats-grid"><label class="stat">Сила<InputNumber @bind-Value="Character.Stats.Strength" @bind-Value:after="RecalculateModifiers" class="input" /></label><label class="stat">Ловкость<InputNumber @bind-Value="Character.Stats.Dexterity" @bind-Value:after="RecalculateModifiers" class="input" /></label><label class="stat">Телосложение<InputNumber @bind-Value="Character.Stats.Constitution" @bind-Value:after="RecalculateModifiers" class="input" /></label><label class="stat">Интеллект<InputNumber @bind-Value="Character.Stats.Intelligence" @bind-Value:after="RecalculateModifiers" class="input" /></label><label class="stat">Мудрость<InputNumber @bind-Value="Character.Stats.Wisdom" @bind-Value:after="RecalculateModifiers" class="input" /></label><label class="stat">Харизма<InputNumber @bind-Value="Character.Stats.Charisma" @bind-Value:after="RecalculateModifiers" class="input" /></label></div></section>
             <section class="form-section"><h2>Боевые параметры</h2><div class="stats-grid"><label class="stat">Текущее HP<InputNumber @bind-Value="Character.Combat.CurrentHealth" class="input" /></label><label class="stat">Макс. HP<InputNumber @bind-Value="Character.Combat.MaxHealth" class="input" /></label><label class="stat">Класс брони<InputNumber @bind-Value="Character.Combat.ArmorClass" class="input" /></label><label class="stat">Защита<InputNumber @bind-Value="Character.Combat.Protection" class="input" /></label></div><div class="two-columns"><div class="equipment-field"><label>Оружие<InputText @bind-Value="Character.Combat.Weapon" class="input" /></label><EquipmentPhotoPicker @bind-Value="Character.Combat.WeaponImageBase64" Title="Фото оружия (необязательно)" /></div><div class="equipment-field"><label>Броня<InputText @bind-Value="Character.Combat.Armor" class="input" /></label><EquipmentPhotoPicker @bind-Value="Character.Combat.ArmorImageBase64" Title="Фото брони (необязательно)" /></div></div></section>
-            <section class="form-section"><div class="section-heading"><h2>Навыки</h2><button type="button" class="small-button" @onclick="AddSkill">Добавить</button></div>@foreach (var skill in Character.Skills) { <div class="skill-card"><button type="button" class="remove-button card-remove" aria-label="Удалить навык" @onclick="() => Character.Skills.Remove(skill)">×</button><InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" /><InputTextArea @bind-Value="skill.Description" class="input description-input" placeholder="Описание" rows="3" /></div> }</section>
-            <section class="form-section"><div class="section-heading"><h2>Инвентарь</h2><button type="button" class="small-button" @onclick="AddItem">Добавить</button></div>@foreach (var item in Character.Inventory) { <div class="item-card"><button type="button" class="remove-button card-remove" aria-label="Удалить предмет" @onclick="() => Character.Inventory.Remove(item)">×</button><div class="item-card-fields"><InputText @bind-Value="item.Name" class="input" /><div class="quantity-field"><span class="quantity-label">Количество</span><InputNumber @bind-Value="item.Quantity" class="input quantity-input" /></div><InputTextArea @bind-Value="item.Description" class="input description-input" placeholder="Описание" rows="3" /></div></div> }</section>
+            <CollapsibleSection Title="Навыки" Count="Character.Skills.Count" OnAdd="AddSkill">
+                @foreach (var skill in Character.Skills)
+                {
+                    <div class="skill-card" @key="skill">
+                        <button type="button" class="remove-button card-remove" aria-label="Удалить навык" @onclick="() => Character.Skills.Remove(skill)">×</button>
+                        <InputText @bind-Value="skill.Name" class="input" placeholder="Название навыка" />
+                        <InputTextArea @bind-Value="skill.Description" class="input description-input" placeholder="Описание" rows="3" />
+                    </div>
+                }
+            </CollapsibleSection>
+
+            <CollapsibleSection Title="Инвентарь" Count="Character.Inventory.Count" OnAdd="AddItem">
+                @foreach (var item in Character.Inventory)
+                {
+                    <div class="item-card" @key="item">
+                        <button type="button" class="remove-button card-remove" aria-label="Удалить предмет" @onclick="() => Character.Inventory.Remove(item)">×</button>
+                        <div class="item-card-fields">
+                            <InputText @bind-Value="item.Name" class="input" placeholder="Название предмета" />
+                            <div class="quantity-field"><span class="quantity-label">Количество</span><InputNumber @bind-Value="item.Quantity" class="input quantity-input" /></div>
+                            <InputTextArea @bind-Value="item.Description" class="input description-input" placeholder="Описание" rows="3" />
+                        </div>
+                    </div>
+                }
+            </CollapsibleSection>
         </EditForm>
     </div>
 }
@@ -37,8 +59,9 @@ else
     protected override async Task OnParametersSetAsync() { CharacterPath = CharacterStorage.GetCharacterPath(Uri.UnescapeDataString(FileName)); Character = await CharacterStorage.LoadAsync(CharacterPath); }
     private void RecalculateModifiers() => Character!.Stats.RecalculateModifiers();
 
-    private void AddSkill() => Character!.Skills.Add(new CharacterSkill());
-    private void AddItem() => Character!.Inventory.Add(new CharacterItem());
+    // New entries go to the top of the list so they appear right under the "Add" button.
+    private void AddSkill() => Character!.Skills.Insert(0, new CharacterSkill());
+    private void AddItem() => Character!.Inventory.Insert(0, new CharacterItem());
     private async Task SaveCharacter() { if (Character!.Combat.MaxHealth < 0) Character.Combat.MaxHealth = 0; if (Character.Combat.CurrentHealth > Character.Combat.MaxHealth) Character.Combat.CurrentHealth = Character.Combat.MaxHealth; await CharacterStorage.SaveToPathAsync(Character, CharacterPath!); Navigation.NavigateTo($"/characters/{Uri.EscapeDataString(Path.GetFileName(CharacterPath!))}"); }
     private async Task PickAvatar()
     {

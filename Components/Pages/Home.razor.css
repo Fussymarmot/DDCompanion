@@ -377,3 +377,32 @@
 @keyframes home-navigation-spin {
     to { transform: rotate(360deg); }
 }
+
+/* ===== Swipe between folders (Telegram-style) ===== */
+
+/* Horizontal swipes are handled by JS (ddSwipe in app.js); vertical scroll stays native. */
+.folder-swipe {
+    position: relative;
+    min-height: 60vh;
+    overflow-x: clip;
+    touch-action: pan-y;
+}
+
+/* No will-change / persistent transform here: it would break the fixed card-menu backdrop. */
+.folder-pane.slide-in-right { animation: folder-slide-in-right .26s cubic-bezier(.22, .8, .3, 1) backwards; }
+.folder-pane.slide-in-left { animation: folder-slide-in-left .26s cubic-bezier(.22, .8, .3, 1) backwards; }
+
+@keyframes folder-slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes folder-slide-in-left {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .folder-pane.slide-in-right,
+    .folder-pane.slide-in-left { animation: none; }
+}

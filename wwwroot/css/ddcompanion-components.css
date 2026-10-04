@@ -1745,6 +1745,36 @@ label {
     to { transform: rotate(360deg); }
 }
 
+/* ===== Swipe between folders (Telegram-style) ===== */
+
+/* Horizontal swipes are handled by JS (ddSwipe in app.js); vertical scroll stays native. */
+.folder-swipe {
+    position: relative;
+    min-height: 60vh;
+    overflow-x: clip;
+    touch-action: pan-y;
+}
+
+/* No will-change / persistent transform here: it would break the fixed card-menu backdrop. */
+.folder-pane.slide-in-right { animation: folder-slide-in-right .26s cubic-bezier(.22, .8, .3, 1) backwards; }
+.folder-pane.slide-in-left { animation: folder-slide-in-left .26s cubic-bezier(.22, .8, .3, 1) backwards; }
+
+@keyframes folder-slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes folder-slide-in-left {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .folder-pane.slide-in-right,
+    .folder-pane.slide-in-left { animation: none; }
+}
+
+
 /* Source: Components/Pages/ImportCharacter.razor.css */
 /* Character import page: centered card with file picker button. */
 
@@ -2603,4 +2633,107 @@ label {
 .suggest-list::-webkit-scrollbar-thumb {
     background: var(--dd-border-strong);
     border-radius: 3px;
+}
+
+
+/* Source: Components/Shared/CollapsibleSection.razor.css */
+/* Collapsible section: header with chevron toggle, count badge, add button and animated body. */
+
+.collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.collapsible-header h2.collapsible-title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+}
+
+.collapsible-toggle {
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--dd-text);
+    font: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.collapsible-chevron {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    color: var(--dd-secondary-text);
+    transition: transform .2s ease;
+}
+
+.collapsible-section.is-closed .collapsible-chevron { transform: rotate(-90deg); }
+
+.collapsible-title-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.collapsible-count {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    box-sizing: border-box;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 11px;
+    background: var(--dd-border-strong);
+    color: var(--dd-text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.collapsible-add { flex: 0 0 auto; }
+
+.collapsible-description {
+    margin: 2px 0 0;
+    color: var(--dd-muted);
+    font-size: 12px;
+}
+
+/* Smooth height animation: grid row goes 0fr -> 1fr, content is clipped while closed. */
+.collapsible-body {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows .25s ease, opacity .2s ease, visibility 0s linear 0s;
+}
+
+.collapsible-section.is-closed .collapsible-body {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    visibility: hidden;
+    transition: grid-template-rows .25s ease, opacity .2s ease, visibility 0s linear .25s;
+}
+
+/* Small padding/negative margin pair keeps card borders and shadows from being clipped. */
+.collapsible-inner {
+    min-height: 0;
+    overflow: hidden;
+    padding: 2px;
+    margin: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .collapsible-body,
+    .collapsible-section.is-closed .collapsible-body,
+    .collapsible-chevron { transition: none; }
 }

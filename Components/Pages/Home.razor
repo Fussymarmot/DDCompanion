@@ -7,6 +7,7 @@
 @using Microsoft.Maui.ApplicationModel.DataTransfer
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>D&D Companion</PageTitle>
 
@@ -68,73 +69,78 @@ else
         }
     </div>
 
-    @if (Characters.Count == 0)
-    {
-        <div class="empty-state">
-            <span>Пока нет персонажей</span>
-            <span>Нажми «+» в шапке, чтобы создать персонажа.</span>
-        </div>
-    }
-    else if (VisibleCharacters.Count == 0)
-    {
-        <div class="empty-state">
-            @if (ActiveFolder is null)
+    @* Swipe left / right over the list to switch folders (see ddSwipe in app.js). *@
+    <div class="folder-swipe" @ref="swipeArea" data-can-prev="@(CanSwipePrev ? "true" : "false")" data-can-next="@(CanSwipeNext ? "true" : "false")">
+        <div class="folder-pane @PaneAnimationClass" @key="@(ActiveFolderId ?? MainTabKey)">
+            @if (Characters.Count == 0)
             {
-                <span>В главной папке пусто</span>
-                <span>Нажми «+» в шапке, чтобы создать персонажа.</span>
+                <div class="empty-state">
+                    <span>Пока нет персонажей</span>
+                    <span>Нажми «+» в шапке, чтобы создать персонажа.</span>
+                </div>
+            }
+            else if (VisibleCharacters.Count == 0)
+            {
+                <div class="empty-state">
+                    @if (ActiveFolder is null)
+                    {
+                        <span>В главной папке пусто</span>
+                        <span>Нажми «+» в шапке, чтобы создать персонажа.</span>
+                    }
+                    else
+                    {
+                        <span>В папке «@ActiveFolder.Name» пусто</span>
+                        <span>Открой меню ⋮ у персонажа и выбери «В папку».</span>
+                    }
+                </div>
             }
             else
             {
-                <span>В папке «@ActiveFolder.Name» пусто</span>
-                <span>Открой меню ⋮ у персонажа и выбери «В папку».</span>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="character-grid">
-            @foreach (var character in VisibleCharacters)
-            {
-                <article class="character-card @(IsMenuOpen(character) ? "menu-open" : "") @(draggedFileName == GetFileName(character) ? "dragging" : "")"
-                         draggable="true"
-                         @ondragstart="() => draggedFileName = GetFileName(character)"
-                         @ondragend="() => { draggedFileName = null; DragOverTab = null; }"
-                         @onclick="() => OpenCharacter(character)">
-                    <div class="card-media">
-                        @if (!string.IsNullOrWhiteSpace(character.ImageBase64))
-                        {
-                            <img src="@character.ImageBase64" alt="@character.Name" draggable="false" />
-                        }
-                        else
-                        {
-                            <div class="card-avatar">?</div>
-                        }
-
-                        <button class="card-menu-button" type="button" aria-label="Действия с персонажем" aria-haspopup="true"
-                                @onclick="() => ToggleMenu(character)" @onclick:stopPropagation="true">
-                            <span aria-hidden="true">⋮</span>
-                        </button>
-                    </div>
-
-                    @if (IsMenuOpen(character))
+                <div class="character-grid">
+                    @foreach (var character in VisibleCharacters)
                     {
-                        <div class="card-menu-backdrop" @onclick="CloseMenu" @onclick:stopPropagation="true"></div>
-                        <div class="card-menu" role="menu" @onclick:stopPropagation="true">
-                            <button class="card-menu-item" type="button" role="menuitem" @onclick="() => OpenMoveDialog(character)">В папку</button>
-                            <button class="card-menu-item" type="button" role="menuitem" @onclick="() => ShareCharacter(character)">Поделиться</button>
-                            <button class="card-menu-item" type="button" role="menuitem" @onclick="() => EditCharacter(character)">Изменить</button>
-                            <button class="card-menu-item danger-action" type="button" role="menuitem" @onclick="() => DeleteCharacter(character)">Удалить</button>
-                        </div>
-                    }
+                        <article class="character-card @(IsMenuOpen(character) ? "menu-open" : "") @(draggedFileName == GetFileName(character) ? "dragging" : "")"
+                                 draggable="true"
+                                 @ondragstart="() => draggedFileName = GetFileName(character)"
+                                 @ondragend="() => { draggedFileName = null; DragOverTab = null; }"
+                                 @onclick="() => OpenCharacter(character)">
+                            <div class="card-media">
+                                @if (!string.IsNullOrWhiteSpace(character.ImageBase64))
+                                {
+                                    <img src="@character.ImageBase64" alt="@character.Name" draggable="false" />
+                                }
+                                else
+                                {
+                                    <div class="card-avatar">?</div>
+                                }
 
-                    <div class="card-info">
-                        <h2>@character.Name</h2>
-                        <p>@character.Species · @character.Class</p>
-                    </div>
-                </article>
+                                <button class="card-menu-button" type="button" aria-label="Действия с персонажем" aria-haspopup="true"
+                                        @onclick="() => ToggleMenu(character)" @onclick:stopPropagation="true">
+                                    <span aria-hidden="true">⋮</span>
+                                </button>
+                            </div>
+
+                            @if (IsMenuOpen(character))
+                            {
+                                <div class="card-menu-backdrop" @onclick="CloseMenu" @onclick:stopPropagation="true"></div>
+                                <div class="card-menu" role="menu" @onclick:stopPropagation="true">
+                                    <button class="card-menu-item" type="button" role="menuitem" @onclick="() => OpenMoveDialog(character)">В папку</button>
+                                    <button class="card-menu-item" type="button" role="menuitem" @onclick="() => ShareCharacter(character)">Поделиться</button>
+                                    <button class="card-menu-item" type="button" role="menuitem" @onclick="() => EditCharacter(character)">Изменить</button>
+                                    <button class="card-menu-item danger-action" type="button" role="menuitem" @onclick="() => DeleteCharacter(character)">Удалить</button>
+                                </div>
+                            }
+
+                            <div class="card-info">
+                                <h2>@character.Name</h2>
+                                <p>@character.Species · @character.Class</p>
+                            </div>
+                        </article>
+                    }
+                </div>
             }
         </div>
-    }
+    </div>
 </div>
 
 @if (dialog != Dialog.None)
@@ -199,6 +205,42 @@ else
     private bool IsLoading = true;
 
     private string? ActiveFolderId;
+
+    // Swipe / slide animation state.
+    private ElementReference swipeArea;
+    private DotNetObjectReference<Home>? dotNetRef;
+    private bool swipeReady;
+    private bool scrollActiveTabPending;
+    private int slideDirection; // 1 = new page enters from the right, -1 = from the left, 0 = no animation
+
+    private string PaneAnimationClass => slideDirection switch
+    {
+        > 0 => "slide-in-right",
+        < 0 => "slide-in-left",
+        _ => string.Empty
+    };
+
+    // Tab order: main folder first, then the custom folders as they appear in the tab bar.
+    private int IndexOfFolder(string? folderId)
+    {
+        if (folderId is null) return 0;
+        var index = Folders.FindIndex(f => f.Id == folderId);
+        return index < 0 ? Folders.Count + 1 : index + 1;
+    }
+
+    private bool CanSwipePrev => IndexOfFolder(ActiveFolderId) > 0;
+    private bool CanSwipeNext => IndexOfFolder(ActiveFolderId) < Folders.Count;
+
+    // Called from JS when the user finishes a horizontal swipe (direction: 1 = next folder, -1 = previous).
+    [JSInvokable]
+    public Task OnSwipe(int direction) => InvokeAsync(() =>
+    {
+        var target = IndexOfFolder(ActiveFolderId) + direction;
+        if (target < 0 || target > Folders.Count) return;
+
+        SelectFolder(target == 0 ? null : Folders[target - 1].Id);
+        StateHasChanged();
+    });
     private CharacterFolder? ActiveFolder => ActiveFolderId is null ? null : Folders.FirstOrDefault(f => f.Id == ActiveFolderId);
 
     private string? OpenMenuFileName;
@@ -226,8 +268,14 @@ else
     private void SelectFolder(string? folderId)
     {
         CloseMenu();
+
+        var from = IndexOfFolder(ActiveFolderId);
+        var to = IndexOfFolder(folderId);
+        slideDirection = to > from ? 1 : to < from ? -1 : 0;
+
         ActiveFolderId = folderId;
         lastFolderId = folderId;
+        scrollActiveTabPending = true;
     }
 
     private void CloseDialog()
@@ -351,6 +399,44 @@ else
             focusNameInput = false;
             try { await nameInput.FocusAsync(); } catch { }
         }
+
+        if (IsLoading) return;
+
+        try
+        {
+            if (!swipeReady && swipeArea.Id is not null)
+            {
+                swipeReady = true;
+                dotNetRef = DotNetObjectReference.Create(this);
+                await JS.InvokeVoidAsync("ddSwipe.init", swipeArea, dotNetRef);
+                scrollActiveTabPending = true;
+            }
+
+            if (scrollActiveTabPending)
+            {
+                scrollActiveTabPending = false;
+                await JS.InvokeVoidAsync("ddSwipe.scrollActiveTabIntoView");
+            }
+        }
+        catch
+        {
+            // Swipe is a convenience; the tabs keep working without it.
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (swipeReady)
+                await JS.InvokeVoidAsync("ddSwipe.destroy", swipeArea);
+        }
+        catch
+        {
+            // The WebView may already be gone.
+        }
+
+        dotNetRef?.Dispose();
     }
 
     private static string GetFileName(Character character) =>
